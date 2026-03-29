@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Juuicyy Prod — Devis et factures intelligents</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --bg2:#e8edf7;
+      --panel:rgba(255,255,255,.74);
+      --panel-solid:#ffffff;
+      --text:#0f172a;
+      --muted:#5b6474;
+      --line:#dbe3ef;
+      --soft:#eef3fa;
+      --primary:#0f172a;
+      --primary-text:#ffffff;
+      --success:#0f9f6e;
+      --warning:#c78700;
+      --danger:#d14343;
+      --shadow:0 18px 48px rgba(15,23,42,.10);
+    }
+    body.dark{
+      --bg:#07101d;
+      --bg2:#0d1728;
+      --panel:rgba(15,23,42,.72);
+      --panel-solid:#0f172a;
+      --text:#f7fafc;
+      --muted:#94a3b8;
+      --line:#223149;
+      --soft:#111c2e;
+      --primary:#f8fafc;
+      --primary-text:#0f172a;
+      --success:#26c281;
+      --warning:#f2b136;
+      --danger:#ff6a6a;
+      --shadow:0 22px 58px rgba(0,0,0,.32);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--bg),var(--bg2));color:var(--text)}
+    body{min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    .app{max-width:1280px;margin:0 auto;padding:14px 14px 28px}
+    .glass{background:var(--panel);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:30px}
+    .header{padding:16px;display:flex;gap:14px;justify-content:space-between;align-items:flex-start;position:sticky;top:10px;z-index:20}
+    .brand h1{margin:0;font-size:1.7rem;line-height:1.1}
+    .brand p{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+    .btn,.input,.select,.textarea{border:1px solid var(--line);background:var(--panel-solid);color:var(--text);border-radius:18px;padding:12px 14px;outline:none}
+    .btn{cursor:pointer;transition:.18s ease;font-weight:600}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:var(--primary);color:var(--primary-text);border-color:transparent}
+    .btn.secondary{background:var(--soft)}
+    .btn.ghost{background:transparent}
+    .btn.danger{background:rgba(209,67,67,.12);color:var(--danger);border-color:rgba(209,67,67,.2)}
+    .icon-btn{width:46px;height:46px;display:grid;place-items:center;padding:0}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;margin-top:14px}
+    .tab{padding:13px 10px;border-radius:18px;border:0;background:transparent;color:var(--muted);font-weight:700;cursor:pointer}
+    .tab.active{background:var(--panel-solid);color:var(--text);box-shadow:0 8px 24px rgba(15,23,42,.08)}
+    .page{display:none;margin-top:14px}
+    .page.active{display:block}
+    .grid{display:grid;gap:14px}
+    .stats{grid-template-columns:repeat(4,1fr)}
+    .card{padding:18px}
+    .stat .label{font-size:.92rem;color:var(--muted)}
+    .stat .value{font-size:1.7rem;font-weight:800;margin-top:4px}
+    .split{display:grid;grid-template-columns:1.25fr .85fr;gap:14px}
+    .section-title{font-size:1.05rem;font-weight:800;margin:0 0 4px}
+    .section-sub{font-size:.92rem;color:var(--muted);margin:0}
+    .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+    .mini{padding:18px;border-radius:22px;background:var(--soft);border:1px solid var(--line)}
+    .mini .big{font-size:1.9rem;font-weight:800;margin-top:8px}
+    .filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px}
+    .documents{display:grid;gap:12px}
+    .doc{padding:16px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+    .doc-title{font-size:1.1rem;font-weight:800;margin:0}
+    .meta{font-size:.92rem;color:var(--muted);margin-top:4px}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .badge{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;font-size:.8rem;font-weight:700;border:1px solid var(--line);background:var(--soft)}
+    .badge.success{color:var(--success);background:rgba(15,159,110,.12);border-color:rgba(15,159,110,.2)}
+    .badge.warn{color:var(--warning);background:rgba(199,135,0,.14);border-color:rgba(199,135,0,.18)}
+    .badge.danger{color:var(--danger);background:rgba(209,67,67,.12);border-color:rgba(209,67,67,.18)}
+    .doc-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+    .settings-grid,.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field.full{grid-column:1/-1}
+    .field label{font-size:.92rem;font-weight:700}
+    .textarea{min-height:120px;resize:vertical}
+    .clients-list{display:grid;gap:10px}
+    .client-row{padding:12px 14px;border-radius:18px;background:var(--soft);border:1px solid var(--line)}
+    .empty{padding:34px 20px;text-align:center;color:var(--muted)}
+    .footer{padding:20px 4px 6px;text-align:center;color:var(--muted);font-size:.84rem}
+    .modal{position:fixed;inset:0;background:linear-gradient(180deg, rgba(2,6,23,.32), rgba(2,6,23,.58));display:none;align-items:stretch;justify-content:center;padding:0;z-index:50}
+    .modal.open{display:flex}
+    .modal-panel{width:100%;height:100vh;max-height:100vh;overflow:hidden;border-radius:0;background:var(--panel-solid);border:0;box-shadow:none}
+    .modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;background:color-mix(in srgb, var(--panel-solid) 88%, transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:3}
+    .editor{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.7fr);height:calc(100vh - 78px)}
+    .editor-main{padding:22px;overflow:auto}
+    .editor-side{padding:22px;border-left:1px solid var(--line);background:var(--soft);overflow:auto}
+    .line-list{display:grid;gap:12px}
+    .line-item{padding:16px;border-radius:26px;background:var(--soft);border:1px solid var(--line)}
+    .line-grid{display:grid;grid-template-columns:1.35fr 1.65fr .72fr .95fr auto;gap:10px;align-items:end}
+    .line-total{margin-top:10px;text-align:right;color:var(--muted);font-size:.9rem;font-weight:700}
+    .suggestions{display:flex;flex-wrap:wrap;gap:8px}
+    .totals{display:grid;gap:10px}
+    .totals .row{display:flex;align-items:center;justify-content:space-between;color:var(--muted)}
+    .totals .row.total{padding-top:12px;border-top:1px solid var(--line);font-size:1.18rem;font-weight:800;color:var(--text)}
+    .helper{padding:14px;border-radius:22px;border:1px dashed var(--line);color:var(--muted);font-size:.86rem}
+    .hidden{display:none !important}
+    @media (max-width: 1024px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .split,.editor{grid-template-columns:1fr}
+      .editor{height:auto}
+      .editor-side{border-left:0;border-top:1px solid var(--line)}
+      .filters{grid-template-columns:1fr 1fr}
+      .line-grid{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 720px){
+      .app{padding:10px 10px 22px}
+      .header{padding:14px;border-radius:24px;position:static}
+      .brand h1{font-size:1.35rem}
+      .actions{width:100%;justify-content:stretch}
+      .actions .btn,.actions .select{flex:1}
+      .tabs{position:sticky;top:10px;z-index:15}
+      .stats,.quick-grid,.filters,.settings-grid,.form-grid{grid-template-columns:1fr}
+      .doc{flex-direction:column}
+      .doc-actions{justify-content:stretch}
+      .doc-actions .btn{flex:1}
+      .modal-panel{width:100%;height:100vh;max-height:100vh;border-radius:0}
+      .modal-head{padding:14px;align-items:flex-start;flex-direction:column}
+      .editor-main,.editor-side{padding:14px}
+      .line-grid{grid-template-columns:1fr}
+      .sticky-mobile{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,0), var(--soft) 18%);padding-top:10px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="glass header">
+      <div class="brand">
+        <h1>Juuicyy Prod</h1>
+        <p>Devis et factures intelligents</p>
+      </div>
+      <div class="actions">
+        <select id="businessSelect" class="select"></select>
+        <button class="btn primary" id="newQuoteBtn">Nouveau devis</button>
+        <button class="btn secondary" id="newInvoiceBtn">Nouvelle facture</button>
+        <button class="btn ghost icon-btn" id="themeBtn" title="Mode sombre">🌙</button>
+      </div>
+    </header>
+
+    <nav class="glass tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="documents">Documents</button>
+      <button class="tab" data-tab="settings">Réglages</button>
+    </nav>
+
+    <section class="page active" id="page-dashboard">
+      <div class="grid stats" id="statsGrid"></div>
+      <div class="split" style="margin-top:14px">
+        <article class="glass card">
+          <h3 class="section-title">Vue rapide</h3>
+          <p class="section-sub">Semaine et mois en un coup d’œil</p>
+          <div class="quick-grid">
+            <div class="mini">
+              <div class="section-sub">Revenu 7 jours</div>
+              <div class="big" id="weekRevenue">0 $</div>
+            </div>
+            <div class="mini">
+              <div class="section-sub">Revenu 30 jours</div>
+              <div class="big" id="monthRevenue">0 $</div>
+            </div>
+          </div>
+        </article>
+        <article class="glass card">
+          <h3 class="section-title">Clients récents</h3>
+          <p class="section-sub">Auto-complétion rapide</p>
+          <div class="clients-list" id="recentClients"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page" id="page-documents">
+      <article class="glass card">
+        <div class="filters">
+          <input id="searchInput" class="input" placeholder="Rechercher client, projet, numéro..." />
+          <select id="typeFilter" class="select">
+            <option value="all">Tous les types</option>
+            <option value="quote">Devis</option>
+            <option value="invoice">Factures</option>
+          </select>
+          <select id="statusFilter" class="select">
+            <option value="all">Tous les statuts</option>
+            <option value="brouillon">Brouillon</option>
+            <option value="accepté">Accepté</option>
+            <option value="refusé">Refusé</option>
+            <option value="annulé">Annulé</option>
+            <option value="en attente">En attente</option>
+            <option value="payé">Payé</option>
+          </select>
+          <select id="dateFilter" class="select">
+            <option value="all">Toutes dates</option>
+            <option value="week">7 jours</option>
+            <option value="month">30 jours</option>
+          </select>
+        </div>
+      </article>
+      <div class="documents" id="documentsList" style="margin-top:14px"></div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <article class="glass card">
+        <h3 class="section-title">Business actif</h3>
+        <p class="section-sub">Infos utilisées pour les PDF et la numérotation</p>
+        <div class="settings-grid" style="margin-top:14px">
+          <div class="field"><label>Nom</label><input id="setName" class="input"></div>
+          <div class="field"><label>Sous-titre</label><input id="setSubtitle" class="input"></div>
+          <div class="field full"><label>Adresse</label><input id="setAddress" class="input"></div>
+          <div class="field"><label>Email</label><input id="setEmail" class="input"></div>
+          <div class="field"><label>Téléphone</label><input id="setPhone" class="input"></div>
+          <div class="field"><label>Préfixe devis</label><input id="setQuotePrefix" class="input"></div>
+          <div class="field"><label>Préfixe facture</label><input id="setInvoicePrefix" class="input"></div>
+          <div class="field"><label>TPS #</label><input id="setTPS" class="input"></div>
+          <div class="field"><label>TVQ #</label><input id="setTVQ" class="input"></div>
+          <div class="field full"><label>Notes par défaut</label><textarea id="setNotes" class="textarea"></textarea></div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">© Juuicyy Prod — Tous droits réservés</footer>
+  </div>
+
+  <div class="modal" id="editorModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div>
+          <div style="font-weight:800;font-size:1.1rem" id="editorTitle">Édition du devis</div>
+          <div style="color:var(--muted);font-size:.92rem" id="editorSubtitle">DEV-001</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn" id="headDuplicateBtn">Dupliquer</button>
+          <button class="btn secondary" id="headConvertBtn">Convertir en facture</button>
+          <button class="btn primary" id="headSaveBtn">Enregistrer</button>
+          <button class="btn ghost" id="closeEditorBtn">Fermer</button>
+        </div>
+      </div>
+      <div class="editor">
+        <div class="editor-main">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+            <div>
+              <div class="section-title">Informations du document</div>
+              <div class="section-sub">Client, projet, statut et dates</div>
+            </div>
+            <div class="badge">Création rapide optimisée mobile</div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Client</label>
+              <input id="docClientName" class="input" list="clientsDatalist" placeholder="Nom du client">
+              <datalist id="clientsDatalist"></datalist>
+            </div>
+            <div class="field"><label>Contact</label><input id="docContact" class="input"></div>
+            <div class="field"><label>Email</label><input id="docEmail" class="input"></div>
+            <div class="field"><label>Téléphone</label><input id="docPhone" class="input"></div>
+            <div class="field"><label>Projet</label><input id="docProject" class="input"></div>
+            <div class="field"><label>Statut</label><select id="docStatus" class="select"></select></div>
+            <div class="field"><label>Date</label><input id="docIssueDate" type="date" class="input"></div>
+            <div class="field" id="expiryField"><label>Expiration</label><input id="docExpiryDate" type="date" class="input"></div>
+          </div>
+
+          <div style="height:1px;background:var(--line);margin:18px 0"></div>
+
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+            <div>
+              <div class="section-title">Services / produits</div>
+              <div class="section-sub">Lignes dynamiques avec calcul automatique</div>
+            </div>
+            <button class="btn secondary" id="addLineBtn">Ajouter une ligne</button>
+          </div>
+
+          <div class="suggestions" id="serviceSuggestions" style="margin-bottom:12px"></div>
+          <div class="line-list" id="lineList"></div>
+
+          <div style="height:1px;background:var(--line);margin:18px 0"></div>
+
+          <div class="form-grid">
+            <div class="field"><label>Type de remise</label>
+              <select id="docDiscountType" class="select">
+                <option value="percent">Pourcentage</option>
+                <option value="fixed">Montant fixe</option>
+              </select>
+            </div>
+            <div class="field"><label>Valeur de remise</label><input id="docDiscountValue" type="number" min="0" step="0.01" class="input"></div>
+            <div class="field"><label>TPS %</label><input id="docTpsRate" type="number" min="0" step="0.001" class="input"></div>
+            <div class="field"><label>TVQ %</label><input id="docTvqRate" type="number" min="0" step="0.001" class="input"></div>
+            <div class="field full"><label>Notes</label><textarea id="docNotes" class="textarea"></textarea></div>
+          </div>
+        </div>
+
+        <aside class="editor-side">
+          <div class="glass card" style="background:var(--panel-solid);margin-bottom:12px">
+            <div class="section-title">Résumé financier</div>
+            <div class="section-sub" style="margin-bottom:14px">Calcul en temps réel, sans erreur</div>
+            <div class="totals">
+              <div class="row"><span>Sous-total</span><strong id="sumSubTotal">0 $</strong></div>
+              <div class="row"><span>Remise</span><strong id="sumDiscount">0 $</strong></div>
+              <div class="row"><span>TPS</span><strong id="sumTPS">0 $</strong></div>
+              <div class="row"><span>TVQ</span><strong id="sumTVQ">0 $</strong></div>
+              <div class="row total"><span>Total</span><span id="sumTotal">0 $</span></div>
+            </div>
+          </div>
+
+          <div class="glass card sticky-mobile" style="background:var(--panel-solid);margin-bottom:12px">
+            <div class="section-title">Raccourcis</div>
+            <div class="section-sub" style="margin:4px 0 14px">Les actions principales restent visibles</div>
+            <div style="display:grid;gap:8px">
+              <button class="btn primary" id="saveDocBtn">Enregistrer</button>
+              <button class="btn" id="exportPdfBtn">Export PDF</button>
+              <button class="btn secondary" id="convertBtn">Convertir en facture</button>
+              <button class="btn ghost" id="duplicateBtn">Dupliquer</button>
+            </div>
+          </div>
+
+          <div class="glass card" style="background:var(--panel-solid)">
+            <div class="section-title">Infos utiles</div>
+            <div class="helper" style="margin-top:12px">Sauvegarde locale automatique · Historique persistant · HTML autonome · Mobile friendly</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'juuicyy_prod_quote_invoice_html_v2';
+    const state = {
+      theme: 'dark',
+      activeTab: 'dashboard',
+      selectedBusinessId: 'default-business',
+      businesses: [{
+        id: 'default-business',
+        name: 'Juuicyy Prod',
+        subtitle: 'Devis et factures intelligents',
+        address: 'Québec, Canada',
+        email: 'contact@juuicyyprod.com',
+        phone: '',
+        tpsNumber: '',
+        tvqNumber: '',
+        defaultNotes: 'Paiement dû selon les conditions convenues.',
+        quotePrefix: 'DEV',
+        invoicePrefix: 'FAC',
+        nextQuoteNumber: 1,
+        nextInvoiceNumber: 1,
+      }],
+      clients: [],
+      servicesCatalog: [],
+      documents: [],
+      filters: { search:'', type:'all', status:'all', date:'all' },
+      editor: null,
+    };
+
+    const qs = (s,p=document)=>p.querySelector(s);
+    const qsa = (s,p=document)=>Array.from(p.querySelectorAll(s));
+    const uid = ()=> (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()));
+    const today = ()=> new Date().toISOString().slice(0,10);
+    const plusDays = (d)=> new Date(Date.now()+d*86400000).toISOString().slice(0,10);
+    const money = (v)=> new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD',maximumFractionDigits:2}).format(Number(v||0));
+    const formatDate = (v)=> v ? new Intl.DateTimeFormat('fr-CA',{dateStyle:'medium'}).format(new Date(v)) : '—';
+    const selectedBusiness = ()=> state.businesses.find(b=>b.id===state.selectedBusinessId) || state.businesses[0];
+    const emptyLine = ()=>({id:uid(),name:'',description:'',quantity:1,unitPrice:0});
+    const emptyDoc = (type='quote')=>({
+      id: uid(), type, number:'', status:type==='quote'?'brouillon':'en attente', clientName:'', contact:'', email:'', phone:'', project:'', issueDate:today(), expiryDate:type==='quote'?plusDays(14):'', lines:[emptyLine()], discountType:'percent', discountValue:0, tpsRate:5, tvqRate:9.975, notes:selectedBusiness().defaultNotes || '', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), businessId:selectedBusiness().id,
+    });
+    const totals = (doc)=>{
+      const subTotal = (doc.lines||[]).reduce((sum,l)=> sum + Number(l.quantity||0)*Number(l.unitPrice||0), 0);
+      const rawDiscount = Number(doc.discountValue||0);
+      const discount = doc.discountType==='percent' ? subTotal*(rawDiscount/100) : rawDiscount;
+      const taxableBase = Math.max(0, subTotal - discount);
+      const tps = taxableBase*(Number(doc.tpsRate||0)/100);
+      const tvq = taxableBase*(Number(doc.tvqRate||0)/100);
+      return {subTotal, discount, taxableBase, tps, tvq, total:taxableBase+tps+tvq};
+    };
+    const statusBadge = (status)=>{
+      const cls = status==='payé'||status==='accepté' ? 'success' : status==='en attente' ? 'warn' : status==='refusé'||status==='annulé' ? 'danger' : '';
+      return `<span class="badge ${cls}">${status}</span>`;
+    };
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: state.theme, selectedBusinessId: state.selectedBusinessId, businesses: state.businesses, clients: state.clients, servicesCatalog: state.servicesCatalog, documents: state.documents }));
+    }
+    function loadState(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      try{ const data = JSON.parse(raw); if(data.theme) state.theme = data.theme; if(data.selectedBusinessId) state.selectedBusinessId = data.selectedBusinessId; if(Array.isArray(data.businesses) && data.businesses.length) state.businesses = data.businesses; if(Array.isArray(data.clients)) state.clients = data.clients; if(Array.isArray(data.servicesCatalog)) state.servicesCatalog = data.servicesCatalog; if(Array.isArray(data.documents)) state.documents = data.documents; }catch(e){}
+    }
+    function applyTheme(){ document.body.classList.toggle('dark', state.theme==='dark'); qs('#themeBtn').textContent = state.theme==='dark' ? '☀️' : '🌙'; }
+    function renderBusinessSelect(){ const sel = qs('#businessSelect'); sel.innerHTML = state.businesses.map(b=>`<option value="${b.id}">${b.name}</option>`).join(''); sel.value = state.selectedBusinessId; }
+    function renderTabs(){ qsa('.tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.tab===state.activeTab)); qsa('.page').forEach(page=>page.classList.toggle('active', page.id===`page-${state.activeTab}`)); }
+    function dashboardData(){ const invoices = state.documents.filter(d=>d.type==='invoice'); const paid = invoices.filter(d=>d.status==='payé'); const pending = invoices.filter(d=>d.status==='en attente'); const totalRevenue = paid.reduce((sum,d)=> sum + totals(d).total, 0); const seven = new Date(); seven.setDate(seven.getDate()-7); const month = new Date(); month.setMonth(month.getMonth()-1); return { totalRevenue, paidCount: paid.length, pendingCount: pending.length, clientCount: state.clients.length, weekRevenue: paid.filter(d=>new Date(d.issueDate||d.createdAt)>=seven).reduce((s,d)=>s+totals(d).total,0), monthRevenue: paid.filter(d=>new Date(d.issueDate||d.createdAt)>=month).reduce((s,d)=>s+totals(d).total,0) }; }
+    function renderDashboard(){ const data = dashboardData(); qs('#statsGrid').innerHTML = [['Total gagné', money(data.totalRevenue)],['Factures payées', data.paidCount],['En attente', data.pendingCount],['Clients', data.clientCount]].map(([label,val])=>`<article class="glass card stat"><div class="label">${label}</div><div class="value">${val}</div></article>`).join(''); qs('#weekRevenue').textContent = money(data.weekRevenue); qs('#monthRevenue').textContent = money(data.monthRevenue); const recent = [...state.clients].sort((a,b)=>new Date(b.lastUsedAt||0)-new Date(a.lastUsedAt||0)).slice(0,8); qs('#recentClients').innerHTML = recent.length ? recent.map(c=>`<div class="client-row"><div style="font-weight:700">${escapeHtml(c.name)}</div><div class="meta">${escapeHtml(c.contact || c.email || 'Sans contact')}</div></div>`).join('') : `<div class="empty">Aucun client enregistré.</div>`; }
+    function filteredDocuments(){ const now = new Date(); return [...state.documents].sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).filter(doc=>{ const text = `${doc.number} ${doc.clientName} ${doc.project} ${doc.contact}`.toLowerCase(); const f = state.filters; if(f.search && !text.includes(f.search.toLowerCase())) return false; if(f.type!=='all' && doc.type!==f.type) return false; if(f.status!=='all' && doc.status!==f.status) return false; const d = new Date(doc.issueDate || doc.createdAt); if(f.date==='week'){ const x=new Date(now); x.setDate(x.getDate()-7); if(d<x) return false; } if(f.date==='month'){ const x=new Date(now); x.setMonth(x.getMonth()-1); if(d<x) return false; } return true; }); }
+    function renderDocuments(){ const list = qs('#documentsList'); const docs = filteredDocuments(); list.innerHTML = docs.length ? docs.map(doc=>{ const t = totals(doc); return `<article class="glass doc"><div><div class="badges"><span class="badge">${doc.type==='quote'?'Devis':'Facture'}</span>${statusBadge(doc.status)}</div><h3 class="doc-title">${escapeHtml(doc.number)}</h3><div class="meta">${escapeHtml(doc.clientName)} · ${escapeHtml(doc.project || 'Sans projet')}</div><div class="meta">${formatDate(doc.issueDate)} · Total ${money(t.total)}</div></div><div class="doc-actions"><button class="btn secondary" data-action="open" data-id="${doc.id}">Ouvrir</button><button class="btn" data-action="duplicate" data-id="${doc.id}">Dupliquer</button>${doc.type==='quote' ? `<button class="btn" data-action="convert" data-id="${doc.id}">Facturer</button>` : ''}<button class="btn" data-action="pdf" data-id="${doc.id}">PDF</button><button class="btn danger" data-action="delete" data-id="${doc.id}">Supprimer</button></div></article>`; }).join('') : `<article class="glass empty">Aucun document pour le moment.</article>`; }
+    function renderSettings(){ const b = selectedBusiness(); qs('#setName').value = b.name || ''; qs('#setSubtitle').value = b.subtitle || ''; qs('#setAddress').value = b.address || ''; qs('#setEmail').value = b.email || ''; qs('#setPhone').value = b.phone || ''; qs('#setQuotePrefix').value = b.quotePrefix || 'DEV'; qs('#setInvoicePrefix').value = b.invoicePrefix || 'FAC'; qs('#setTPS').value = b.tpsNumber || ''; qs('#setTVQ').value = b.tvqNumber || ''; qs('#setNotes').value = b.defaultNotes || ''; }
+    function createDocument(type){ const b = selectedBusiness(); const doc = emptyDoc(type); const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; doc.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor = doc; openEditor(); }
+    function openEditor(doc){ if(doc) state.editor = structuredClone(doc); renderEditor(); qs('#editorModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeEditor(){ qs('#editorModal').classList.remove('open'); document.body.style.overflow = ''; }
+    function editorStatuses(type){ return type==='quote' ? ['brouillon','accepté','refusé','annulé'] : ['en attente','payé','annulé']; }
+    function renderEditor(){ const doc = state.editor; if(!doc) return; qs('#editorTitle').textContent = doc.type==='quote' ? 'Édition du devis' : 'Édition de la facture'; qs('#editorSubtitle').textContent = `${doc.number} · ${doc.clientName || 'Sans client'}`; qs('#docClientName').value = doc.clientName || ''; qs('#docContact').value = doc.contact || ''; qs('#docEmail').value = doc.email || ''; qs('#docPhone').value = doc.phone || ''; qs('#docProject').value = doc.project || ''; qs('#docIssueDate').value = doc.issueDate || today(); qs('#docExpiryDate').value = doc.expiryDate || ''; qs('#expiryField').classList.toggle('hidden', doc.type !== 'quote'); const statuses = editorStatuses(doc.type); qs('#docStatus').innerHTML = statuses.map(s=>`<option value="${s}">${s}</option>`).join(''); qs('#docStatus').value = statuses.includes(doc.status) ? doc.status : statuses[0]; qs('#docDiscountType').value = doc.discountType || 'percent'; qs('#docDiscountValue').value = Number(doc.discountValue||0); qs('#docTpsRate').value = Number(doc.tpsRate||0); qs('#docTvqRate').value = Number(doc.tvqRate||0); qs('#docNotes').value = doc.notes || ''; qs('#clientsDatalist').innerHTML = state.clients.map(c=>`<option value="${escapeHtml(c.name)}"></option>`).join(''); qs('#convertBtn').classList.toggle('hidden', doc.type !== 'quote'); qs('#headConvertBtn').classList.toggle('hidden', doc.type !== 'quote'); renderLines(); renderSuggestions(); refreshSummary(); }
+    function renderSuggestions(){ const box = qs('#serviceSuggestions'); const items = [...state.servicesCatalog].sort((a,b)=>(b.usedCount||0)-(a.usedCount||0)).slice(0,8); box.innerHTML = items.length ? items.map(s=>`<button class="btn" data-add-service="${s.id}">${escapeHtml(s.name)} · ${money(s.lastPrice||0)}</button>`).join('') : ''; }
+    function renderLines(){ const doc = state.editor; const list = qs('#lineList'); const focused = document.activeElement; const activeLineId = focused?.dataset?.line || null; const activeKey = focused?.dataset?.key || null; const selectionStart = typeof focused?.selectionStart === 'number' ? focused.selectionStart : null; const selectionEnd = typeof focused?.selectionEnd === 'number' ? focused.selectionEnd : null; list.innerHTML = doc.lines.map((line,index)=>`<div class="line-item"><div class="line-grid"><div class="field"><label>Nom</label><input class="input" data-line="${line.id}" data-key="name" value="${escapeAttr(line.name)}"></div><div class="field"><label>Description</label><input class="input" data-line="${line.id}" data-key="description" value="${escapeAttr(line.description)}"></div><div class="field"><label>Qté</label><input class="input" type="number" min="0" step="1" data-line="${line.id}" data-key="quantity" value="${Number(line.quantity||0)}"></div><div class="field"><label>Prix unitaire</label><input class="input" type="number" min="0" step="0.01" data-line="${line.id}" data-key="unitPrice" value="${Number(line.unitPrice||0)}"></div><button class="btn danger" data-remove-line="${line.id}">Supprimer</button></div><div class="line-total">Ligne ${index+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}</div></div>`).join(''); if(activeLineId && activeKey){ const nextInput = list.querySelector(`[data-line="${activeLineId}"][data-key="${activeKey}"]`); if(nextInput){ nextInput.focus(); if(selectionStart !== null && selectionEnd !== null && typeof nextInput.setSelectionRange === 'function'){ nextInput.setSelectionRange(selectionStart, selectionEnd); } } } }
+    function syncEditorFromFields(){ const doc = state.editor; doc.clientName = qs('#docClientName').value.trim(); doc.contact = qs('#docContact').value.trim(); doc.email = qs('#docEmail').value.trim(); doc.phone = qs('#docPhone').value.trim(); doc.project = qs('#docProject').value.trim(); doc.issueDate = qs('#docIssueDate').value || today(); doc.expiryDate = qs('#docExpiryDate').value || ''; doc.status = qs('#docStatus').value; doc.discountType = qs('#docDiscountType').value; doc.discountValue = Number(qs('#docDiscountValue').value || 0); doc.tpsRate = Number(qs('#docTpsRate').value || 0); doc.tvqRate = Number(qs('#docTvqRate').value || 0); doc.notes = qs('#docNotes').value; const matched = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(matched){ if(!doc.contact) doc.contact = matched.contact || ''; if(!doc.email) doc.email = matched.email || ''; if(!doc.phone) doc.phone = matched.phone || ''; } }
+    function refreshSummary(){ syncEditorFromFields(); const t = totals(state.editor); qs('#editorSubtitle').textContent = `${state.editor.number} · ${state.editor.clientName || 'Sans client'}`; qs('#sumSubTotal').textContent = money(t.subTotal); qs('#sumDiscount').textContent = '- ' + money(t.discount); qs('#sumTPS').textContent = money(t.tps); qs('#sumTVQ').textContent = money(t.tvq); qs('#sumTotal').textContent = money(t.total); }
+    function updateCountersOnCreate(type){ state.businesses = state.businesses.map(b=>{ if(b.id!==state.selectedBusinessId) return b; return type==='quote' ? {...b, nextQuoteNumber:(b.nextQuoteNumber||1)+1} : {...b, nextInvoiceNumber:(b.nextInvoiceNumber||1)+1}; }); }
+    function saveDocument(){ syncEditorFromFields(); const doc = state.editor; if(!doc.clientName.trim()){ alert('Ajoute au moins un client.'); return; } doc.updatedAt = new Date().toISOString(); doc.businessId = state.selectedBusinessId; const exists = state.documents.some(d=>d.id===doc.id); if(exists) state.documents = state.documents.map(d=>d.id===doc.id ? structuredClone(doc) : d); else { state.documents.unshift(structuredClone(doc)); updateCountersOnCreate(doc.type); } const now = new Date().toISOString(); const existingClient = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(existingClient){ Object.assign(existingClient, {contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } else { state.clients.unshift({id:uid(),name:doc.clientName,contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } const map = new Map(state.servicesCatalog.map(s=>[s.name.toLowerCase(),s])); doc.lines.forEach(line=>{ if(!line.name.trim()) return; const key = line.name.toLowerCase(); const old = map.get(key); if(old) Object.assign(old,{description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:(old.usedCount||0)+1}); else map.set(key,{id:uid(),name:line.name,description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:1}); }); state.servicesCatalog = Array.from(map.values()); saveState(); renderAll(); closeEditor(); }
+    function duplicateDocument(id){ const original = state.documents.find(d=>d.id===id); if(!original) return; const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; state.editor = structuredClone(original); state.editor.id = uid(); state.editor.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = type==='quote' ? 'brouillon' : 'en attente'; state.editor.issueDate = today(); state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
+    function convertDocument(id){ const source = typeof id === 'string' ? state.documents.find(d=>d.id===id) : state.editor; if(!source) return; const b = selectedBusiness(); const next = b.nextInvoiceNumber; state.editor = structuredClone(source); state.editor.id = uid(); state.editor.type = 'invoice'; state.editor.number = `${b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = 'en attente'; state.editor.expiryDate = ''; state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
+    function deleteDocument(id){ if(!confirm('Supprimer ce document ?')) return; state.documents = state.documents.filter(d=>d.id!==id); saveState(); renderAll(); }
+    function exportPDF(doc){
+      if(!window.jspdf || !window.jspdf.jsPDF){
+        alert('La librairie PDF n\'est pas chargée.');
+        return;
+      }
+
+      const b = state.businesses.find(x=>x.id===doc.businessId) || selectedBusiness();
+      const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+      const t = totals(doc);
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 16;
+      const contentW = pageW - margin * 2;
+      const isQuote = doc.type === 'quote';
+
+      const C = {
+        ink: [17,24,39],
+        text: [55,65,81],
+        muted: [107,114,128],
+        line: [229,231,235],
+        soft: [249,250,251],
+        white: [255,255,255],
+        accent: [245,158,11],
+        accentDark: [180,83,9],
+      };
+
+      const fmtMoney = (v) => money(v || 0);
+      const setFont = (size=10, bold=false, color=C.text) => {
+        pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+        pdf.setFontSize(size);
+        pdf.setTextColor(...color);
+      };
+      const txt = (value, x, y, opts={}) => {
+        setFont(opts.size || 10, !!opts.bold, opts.color || C.text);
+        const content = Array.isArray(value) ? value : String(value ?? '');
+        if(opts.align) pdf.text(content, x, y, { align: opts.align });
+        else pdf.text(content, x, y);
+      };
+      const line = (x1, y1, x2, y2, color=C.line, width=0.35) => {
+        pdf.setDrawColor(...color);
+        pdf.setLineWidth(width);
+        pdf.line(x1, y1, x2, y2);
+      };
+      const box = (x, y, w, h, fill=C.white, stroke=C.line, r=0) => {
+        pdf.setFillColor(...fill);
+        pdf.setDrawColor(...stroke);
+        if(r > 0) pdf.roundedRect(x, y, w, h, r, r, 'FD');
+        else pdf.rect(x, y, w, h, 'FD');
+      };
+      const wrap = (value, width, maxLines=null) => {
+        const arr = pdf.splitTextToSize(String(value || ''), width);
+        if(maxLines && arr.length > maxLines){
+          const out = arr.slice(0, maxLines);
+          let last = out[maxLines - 1] || '';
+          last = last.length > 1 ? `${last.slice(0, -1)}…` : '…';
+          out[maxLines - 1] = last;
+          return out;
+        }
+        return arr;
+      };
+      const rowText = (label, value, x1, x2, y, total=false) => {
+        txt(label, x1, y, { size: total ? 12 : 10, bold: total, color: total ? C.ink : C.muted });
+        txt(value, x2, y, { size: total ? 12 : 10, bold: total, color: total ? C.accentDark : C.ink, align: 'right' });
+      };
+      const drawPartyCard = (title, strongLine, lines, x, y, w) => {
+        const contentLines = lines.filter(Boolean).flatMap(v => wrap(v, w - 10, 2));
+        const maxExtra = 4;
+        const trimmed = contentLines.slice(0, maxExtra);
+        const h = Math.max(34, 18 + trimmed.length * 5.2);
+        box(x, y, w, h, C.soft, C.line, 0);
+        txt(title, x + 5, y + 7, { size: 8, bold: true, color: C.muted });
+        txt(strongLine || '—', x + 5, y + 14, { size: 11, bold: true, color: C.ink });
+        trimmed.forEach((v, i) => txt(v, x + 5, y + 20 + i * 5.2, { size: 9, color: C.text }));
+        return h;
+      };
+
+      pdf.setFillColor(...C.white);
+      pdf.rect(0, 0, pageW, pageH, 'F');
+
+      box(margin, margin, contentW, 30, C.ink, C.ink, 0);
+      box(margin + 6, margin + 6, 16, 18, C.white, C.white, 3);
+      pdf.setFillColor(...C.accent);
+      pdf.circle(margin + 14, margin + 15, 4.8, 'F');
+      txt(b.name || 'Juuicyy Prod', margin + 28, margin + 12, { size: 18, bold: true, color: C.white });
+      txt(b.subtitle || 'Devis et factures intelligents', margin + 28, margin + 20, { size: 9, color: [209,213,219] });
+      txt(isQuote ? 'DEVIS' : 'FACTURE', pageW - margin - 6, margin + 12, { size: 18, bold: true, color: C.white, align: 'right' });
+      txt(doc.number, pageW - margin - 6, margin + 20, { size: 10, color: [229,231,235], align: 'right' });
+
+      let y = margin + 38;
+
+      const leftW = 92;
+      const rightW = contentW - leftW - 8;
+      const issuerLines = [b.address, b.email, b.phone, b.tpsNumber ? `TPS: ${b.tpsNumber}` : '', b.tvqNumber ? `TVQ: ${b.tvqNumber}` : ''];
+      const clientLines = [doc.contact, doc.email, doc.phone, doc.project ? `Projet: ${doc.project}` : ''];
+      const leftH = drawPartyCard('ÉMETTEUR', b.name || 'Juuicyy Prod', issuerLines, margin, y, leftW);
+      const rightH = drawPartyCard('CLIENT', doc.clientName || '—', clientLines, margin + leftW + 8, y, rightW);
+      const partyH = Math.max(leftH, rightH);
+      if(leftH !== partyH) box(margin, y, leftW, partyH, C.soft, C.line, 0), drawPartyCard('ÉMETTEUR', b.name || 'Juuicyy Prod', issuerLines, margin, y, leftW);
+      if(rightH !== partyH) box(margin + leftW + 8, y, rightW, partyH, C.soft, C.line, 0), drawPartyCard('CLIENT', doc.clientName || '—', clientLines, margin + leftW + 8, y, rightW);
+
+      y += partyH + 8;
+      box(margin, y, contentW, 14, [255,251,235], [253,230,138], 0);
+      const metaW = contentW / 3;
+      [
+        ['Date', formatDate(doc.issueDate)],
+        [isQuote ? 'Expiration' : 'Statut', isQuote ? formatDate(doc.expiryDate) : (doc.status || '—')],
+        [isQuote ? 'Statut' : 'Paiement', isQuote ? (doc.status || '—') : (doc.status === 'payé' ? 'Reçu' : 'En attente')],
+      ].forEach((item, i) => {
+        const mx = margin + i * metaW + 5;
+        txt(item[0], mx, y + 5.2, { size: 7.8, bold: true, color: C.accentDark });
+        txt(item[1] || '—', mx, y + 10.6, { size: 9.4, color: C.ink });
+      });
+
+      y += 22;
+      const serviceW = 106;
+      const qtyW = 18;
+      const priceW = 25;
+      const totalW = 27;
+      const tableX = margin;
+      const serviceX = tableX + 4;
+      const qtyX = tableX + serviceW;
+      const priceX = qtyX + qtyW;
+      const totalX = priceX + priceW;
+      const renderTableHead = () => {
+        box(tableX, y, contentW, 10, C.ink, C.ink, 0);
+        txt('Service', serviceX, y + 6.4, { size: 9, bold: true, color: C.white });
+        txt('Qté', qtyX + qtyW - 3, y + 6.4, { size: 9, bold: true, color: C.white, align: 'right' });
+        txt('Prix', priceX + priceW - 3, y + 6.4, { size: 9, bold: true, color: C.white, align: 'right' });
+        txt('Total', totalX + totalW - 3, y + 6.4, { size: 9, bold: true, color: C.white, align: 'right' });
+        y += 12;
+      };
+      renderTableHead();
+
+      const newPage = () => {
+        pdf.addPage();
+        pdf.setFillColor(...C.white);
+        pdf.rect(0, 0, pageW, pageH, 'F');
+        y = margin;
+        renderTableHead();
+      };
+
+      doc.lines.forEach((item, idx) => {
+        const title = item.name || '—';
+        const desc = item.description ? wrap(item.description, serviceW - 8, 4) : [];
+        const rowH = 10 + (desc.length ? desc.length * 4.2 : 0);
+        if(y + rowH > 236) newPage();
+        box(tableX, y, contentW, rowH, idx % 2 === 0 ? C.white : C.soft, C.line, 0);
+        txt(title, serviceX, y + 5.8, { size: 10, bold: true, color: C.ink });
+        if(desc.length) txt(desc, serviceX, y + 10.2, { size: 8.3, color: C.muted });
+        txt(String(item.quantity || 0), qtyX + qtyW - 3, y + 7.2, { size: 9.4, color: C.ink, align: 'right' });
+        txt(fmtMoney(item.unitPrice || 0), priceX + priceW - 3, y + 7.2, { size: 9.4, color: C.ink, align: 'right' });
+        txt(fmtMoney(Number(item.quantity || 0) * Number(item.unitPrice || 0)), totalX + totalW - 3, y + 7.2, { size: 9.4, bold: true, color: C.ink, align: 'right' });
+        y += rowH + 3;
+      });
+
+      const notesText = doc.notes && doc.notes.trim() ? doc.notes.trim() : 'Paiement dû selon les conditions convenues.';
+      const notesLines = wrap(notesText, 86, 5);
+      const notesH = Math.max(26, 12 + notesLines.length * 4.5);
+      const summaryRows = 5;
+      const summaryH = 12 + summaryRows * 7;
+      const blockY = Math.max(y + 6, 226 - Math.max(notesH, summaryH));
+      const blockH = Math.max(notesH, summaryH);
+      const notesBlockW = 94;
+      const summaryBlockX = margin + notesBlockW + 8;
+      const summaryBlockW = contentW - notesBlockW - 8;
+
+      box(margin, blockY, notesBlockW, blockH, C.soft, C.line, 0);
+      txt('NOTES', margin + 5, blockY + 7, { size: 8, bold: true, color: C.muted });
+      txt(notesLines, margin + 5, blockY + 14, { size: 8.6, color: C.text });
+
+      box(summaryBlockX, blockY, summaryBlockW, blockH, C.soft, C.line, 0);
+      const sx1 = summaryBlockX + 5;
+      const sx2 = summaryBlockX + summaryBlockW - 5;
+      rowText('Sous-total', fmtMoney(t.subTotal), sx1, sx2, blockY + 7);
+      rowText('Remise', fmtMoney(t.discount), sx1, sx2, blockY + 14);
+      rowText('TPS', fmtMoney(t.tps), sx1, sx2, blockY + 21);
+      rowText('TVQ', fmtMoney(t.tvq), sx1, sx2, blockY + 28);
+      line(sx1, blockY + 32.5, sx2, blockY + 32.5, C.line, 0.4);
+      rowText('Total', fmtMoney(t.total), sx1, sx2, blockY + 41, true);
+
+      line(margin, pageH - 14, pageW - margin, pageH - 14, C.line, 0.4);
+      txt('Merci pour votre confiance.', margin, pageH - 8, { size: 8.3, color: C.muted });
+      txt('© Juuicyy Prod — Tous droits réservés', pageW - margin, pageH - 8, { size: 8.3, color: C.muted, align: 'right' });
+      pdf.save(`${doc.number}.pdf`);
+    }
+    function escapeHtml(str=''){ return String(str).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+    function escapeAttr(str=''){ return escapeHtml(str).replace(/`/g,'&#96;'); }
+    function renderAll(){ applyTheme(); renderBusinessSelect(); renderTabs(); renderDashboard(); renderDocuments(); renderSettings(); saveState(); }
+    function cloneCurrentEditor(){ if(!state.editor) return; const original = structuredClone(state.editor); const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; original.id = uid(); original.number = `${type==='quote'?b.quotePrefix:b.invoicePrefix}-${String(next).padStart(3,'0')}`; original.status = type==='quote' ? 'brouillon' : 'en attente'; original.issueDate = today(); original.createdAt = new Date().toISOString(); original.updatedAt = new Date().toISOString(); state.editor = original; renderEditor(); }
+    function bindEvents(){ qs('#themeBtn').addEventListener('click', ()=>{ state.theme = state.theme==='dark' ? 'light' : 'dark'; applyTheme(); saveState(); }); qsa('.tab').forEach(btn=>btn.addEventListener('click', ()=>{ state.activeTab = btn.dataset.tab; renderTabs(); })); qs('#businessSelect').addEventListener('change', e=>{ state.selectedBusinessId = e.target.value; renderSettings(); saveState(); }); qs('#newQuoteBtn').addEventListener('click', ()=> createDocument('quote')); qs('#newInvoiceBtn').addEventListener('click', ()=> createDocument('invoice')); qs('#searchInput').addEventListener('input', e=>{ state.filters.search = e.target.value; renderDocuments(); }); qs('#typeFilter').addEventListener('change', e=>{ state.filters.type = e.target.value; renderDocuments(); }); qs('#statusFilter').addEventListener('change', e=>{ state.filters.status = e.target.value; renderDocuments(); }); qs('#dateFilter').addEventListener('change', e=>{ state.filters.date = e.target.value; renderDocuments(); }); qs('#documentsList').addEventListener('click', e=>{ const btn = e.target.closest('[data-action]'); if(!btn) return; const { action, id } = btn.dataset; if(action==='open') openEditor(state.documents.find(d=>d.id===id)); if(action==='duplicate') duplicateDocument(id); if(action==='convert') convertDocument(id); if(action==='pdf') { const d=state.documents.find(x=>x.id===id); if(d) exportPDF(d); } if(action==='delete') deleteDocument(id); }); ['setName','setSubtitle','setAddress','setEmail','setPhone','setQuotePrefix','setInvoicePrefix','setTPS','setTVQ','setNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', ()=>{ const b = selectedBusiness(); b.name = qs('#setName').value; b.subtitle = qs('#setSubtitle').value; b.address = qs('#setAddress').value; b.email = qs('#setEmail').value; b.phone = qs('#setPhone').value; b.quotePrefix = qs('#setQuotePrefix').value.toUpperCase() || 'DEV'; b.invoicePrefix = qs('#setInvoicePrefix').value.toUpperCase() || 'FAC'; b.tpsNumber = qs('#setTPS').value; b.tvqNumber = qs('#setTVQ').value; b.defaultNotes = qs('#setNotes').value; renderBusinessSelect(); saveState(); }); }); qs('#closeEditorBtn').addEventListener('click', closeEditor); qs('#editorModal').addEventListener('click', e=>{ if(e.target.id==='editorModal') closeEditor(); }); qs('#addLineBtn').addEventListener('click', ()=>{ state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }); qs('#saveDocBtn').addEventListener('click', saveDocument); qs('#headSaveBtn').addEventListener('click', saveDocument); qs('#convertBtn').addEventListener('click', ()=> convertDocument()); qs('#headConvertBtn').addEventListener('click', ()=> convertDocument()); qs('#duplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#headDuplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#exportPdfBtn').addEventListener('click', ()=>{ if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }); ['docClientName','docContact','docEmail','docPhone','docProject','docIssueDate','docExpiryDate','docStatus','docDiscountType','docDiscountValue','docTpsRate','docTvqRate','docNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', refreshSummary); qs('#'+id).addEventListener('change', refreshSummary); }); qs('#docClientName').addEventListener('change', ()=>{ const value = qs('#docClientName').value.trim().toLowerCase(); const matched = state.clients.find(c=>c.name.toLowerCase()===value); if(matched){ if(!qs('#docContact').value) qs('#docContact').value = matched.contact || ''; if(!qs('#docEmail').value) qs('#docEmail').value = matched.email || ''; if(!qs('#docPhone').value) qs('#docPhone').value = matched.phone || ''; refreshSummary(); } }); qs('#lineList').addEventListener('input', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; const line = state.editor.lines.find(l=>l.id===input.dataset.line); if(!line) return; const key = input.dataset.key; line[key] = (key==='quantity' || key==='unitPrice') ? Number(input.value||0) : input.value; const totalEl = input.closest('.line-item')?.querySelector('.line-total'); if(totalEl){ totalEl.textContent = `Ligne ${state.editor.lines.findIndex(l=>l.id===line.id)+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}`; } refreshSummary(); }); qs('#lineList').addEventListener('change', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; renderLines(); }); qs('#lineList').addEventListener('click', e=>{ const btn = e.target.closest('[data-remove-line]'); if(!btn) return; const id = btn.dataset.removeLine; state.editor.lines = state.editor.lines.filter(l=>l.id!==id); if(!state.editor.lines.length) state.editor.lines = [emptyLine()]; renderLines(); refreshSummary(); }); qs('#serviceSuggestions').addEventListener('click', e=>{ const btn = e.target.closest('[data-add-service]'); if(!btn) return; const service = state.servicesCatalog.find(s=>s.id===btn.dataset.addService); if(!service) return; state.editor.lines.push({id:uid(),name:service.name,description:service.description||'',quantity:1,unitPrice:Number(service.lastPrice||0)}); renderLines(); refreshSummary(); }); }
+    loadState(); bindEvents(); renderAll();
+  </script>
+</body>
+</html>
