@@ -175,6 +175,13 @@
     min-height:100vh;
     overflow-x:hidden;
   }
+  body.modal-open{
+    position:fixed;
+    inset:0;
+    width:100%;
+    overflow:hidden;
+    touch-action:none;
+  }
   body::before{
     content:'';
     position:fixed; inset:0;
@@ -321,8 +328,8 @@
   }
   .modal-panel{
     width:min(100%, 1320px) !important;
-    height:min(92vh, 960px) !important;
-    max-height:92vh !important;
+    height:min(calc(var(--app-vh, 1vh) * 92), 960px) !important;
+    max-height:calc(var(--app-vh, 1vh) * 92) !important;
     background:rgba(11,14,21,.98) !important;
     border:1px solid var(--line-strong) !important;
     border-radius:24px !important;
@@ -375,7 +382,7 @@
     .doc-actions{justify-content:stretch !important;width:100%}
     .doc-actions .btn{flex:1 1 calc(50% - 8px)}
     .modal{padding:0 !important;align-items:stretch !important}
-    .modal-panel{width:100% !important;height:100vh !important;max-height:100vh !important;border-radius:0 !important;border:0 !important}
+    .modal-panel{width:100% !important;height:calc(var(--app-vh, 1vh) * 100) !important;max-height:calc(var(--app-vh, 1vh) * 100) !important;border-radius:0 !important;border:0 !important}
     .modal-head{padding:14px !important;align-items:flex-start !important;flex-direction:column !important}
     .editor-main,.editor-side{padding:14px !important}
     .line-grid{grid-template-columns:1fr !important}
@@ -581,7 +588,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'juuicyy_prod_quote_invoice_html_v2';
+    const STORAGE_KEY = 'juuicyy_prod_quote_invoice_html_v3';
     const state = {
       theme: 'dark',
       activeTab: 'dashboard',
@@ -617,6 +624,20 @@
       if (!Number.isFinite(n)) return min;
       return Math.min(max, Math.max(min, n));
     };
+    const sanitizePrefix = (value, fallback)=>{
+      const cleaned = String(value || '').toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 12);
+      return cleaned || fallback;
+    };
+    const validLines = (lines=[]) => lines
+      .map(line => ({
+        ...line,
+        name: String(line.name || '').trim(),
+        description: String(line.description || '').trim(),
+        quantity: clamp(line.quantity, 0),
+        unitPrice: clamp(line.unitPrice, 0),
+      }))
+      .filter(line => line.name || line.description || line.quantity > 0 || line.unitPrice > 0);
+    const supportsClipboard = () => !!(navigator.clipboard && navigator.clipboard.writeText);
     const today = ()=> new Date().toISOString().slice(0,10);
     const plusDays = (d)=> new Date(Date.now()+d*86400000).toISOString().slice(0,10);
     const money = (v)=> new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD',maximumFractionDigits:2}).format(Number(v||0));
@@ -656,6 +677,24 @@
       }catch(e){}
     }
     function applyTheme(){ state.theme = 'dark'; document.body.classList.add('dark'); }
+    function setViewportUnit(){
+      const vh = window.visualViewport ? window.visualViewport.height * 0.01 : window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--app-vh', `${vh}px`);
+    }
+    function lockBodyScroll(){
+      if (document.body.classList.contains('modal-open')) return;
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.dataset.scrollY = String(scrollY);
+      document.body.classList.add('modal-open');
+      document.body.style.top = `-${scrollY}px`;
+    }
+    function unlockBodyScroll(){
+      const scrollY = Number(document.body.dataset.scrollY || 0);
+      document.body.classList.remove('modal-open');
+      document.body.style.top = '';
+      delete document.body.dataset.scrollY;
+      window.scrollTo(0, scrollY);
+    }
     function renderBusinessSelect(){ const sel = qs('#businessSelect'); sel.innerHTML = state.businesses.map(b=>`<option value="${b.id}">${b.name}</option>`).join(''); sel.value = state.selectedBusinessId; }
     function renderTabs(){ qsa('.tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.tab===state.activeTab)); qsa('.page').forEach(page=>page.classList.toggle('active', page.id===`page-${state.activeTab}`)); }
     function dashboardData(){ const invoices = state.documents.filter(d=>d.type==='invoice'); const paid = invoices.filter(d=>d.status==='payé'); const pending = invoices.filter(d=>d.status==='en attente'); const totalRevenue = paid.reduce((sum,d)=> sum + totals(d).total, 0); const seven = new Date(); seven.setDate(seven.getDate()-7); const month = new Date(); month.setMonth(month.getMonth()-1); return { totalRevenue, paidCount: paid.length, pendingCount: pending.length, clientCount: state.clients.length, weekRevenue: paid.filter(d=>new Date(d.issueDate||d.createdAt)>=seven).reduce((s,d)=>s+totals(d).total,0), monthRevenue: paid.filter(d=>new Date(d.issueDate||d.createdAt)>=month).reduce((s,d)=>s+totals(d).total,0) }; }
@@ -663,9 +702,9 @@
     function filteredDocuments(){ const now = new Date(); return [...state.documents].sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).filter(doc=>{ const text = `${doc.number} ${doc.clientName} ${doc.project} ${doc.contact}`.toLowerCase(); const f = state.filters; if(f.search && !text.includes(f.search.toLowerCase())) return false; if(f.type!=='all' && doc.type!==f.type) return false; if(f.status!=='all' && doc.status!==f.status) return false; const d = new Date(doc.issueDate || doc.createdAt); if(f.date==='week'){ const x=new Date(now); x.setDate(x.getDate()-7); if(d<x) return false; } if(f.date==='month'){ const x=new Date(now); x.setMonth(x.getMonth()-1); if(d<x) return false; } return true; }); }
     function renderDocuments(){ const list = qs('#documentsList'); const docs = filteredDocuments(); list.innerHTML = docs.length ? docs.map(doc=>{ const t = totals(doc); return `<article class="glass doc"><div><div class="badges"><span class="badge">${doc.type==='quote'?'Devis':'Facture'}</span>${statusBadge(doc.status)}</div><h3 class="doc-title">${escapeHtml(doc.number)}</h3><div class="meta">${escapeHtml(doc.clientName)} · ${escapeHtml(doc.project || 'Sans projet')}</div><div class="meta">${formatDate(doc.issueDate)} · Total ${money(t.total)}</div></div><div class="doc-actions"><button class="btn secondary" data-action="open" data-id="${doc.id}">Ouvrir</button><button class="btn" data-action="duplicate" data-id="${doc.id}">Dupliquer</button>${doc.type==='quote' ? `<button class="btn" data-action="convert" data-id="${doc.id}">Facturer</button>` : ''}<button class="btn" data-action="pdf" data-id="${doc.id}">PDF</button><button class="btn danger" data-action="delete" data-id="${doc.id}">Supprimer</button></div></article>`; }).join('') : `<article class="glass empty">Aucun document pour le moment.</article>`; }
     function renderSettings(){ const b = selectedBusiness(); qs('#setName').value = b.name || ''; qs('#setSubtitle').value = b.subtitle || ''; qs('#setAddress').value = b.address || ''; qs('#setEmail').value = b.email || ''; qs('#setPhone').value = b.phone || ''; qs('#setQuotePrefix').value = b.quotePrefix || 'DEV'; qs('#setInvoicePrefix').value = b.invoicePrefix || 'FAC'; qs('#setTPS').value = b.tpsNumber || ''; qs('#setTVQ').value = b.tvqNumber || ''; qs('#setNotes').value = b.defaultNotes || ''; }
-    function createDocument(type){ const b = selectedBusiness(); const doc = emptyDoc(type); const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; doc.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor = doc; openEditor(); }
-    function openEditor(doc){ if(doc) state.editor = clone(doc); renderEditor(); qs('#editorModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeEditor(){ qs('#editorModal').classList.remove('open'); document.body.style.overflow = ''; }
+    function createDocument(type){ const b = selectedBusiness(); const doc = emptyDoc(type); const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; doc.number = `${type==='quote' ? sanitizePrefix(b.quotePrefix, 'DEV') : sanitizePrefix(b.invoicePrefix, 'FAC')}-${String(next).padStart(3,'0')}`; state.editor = doc; openEditor(); }
+    function openEditor(doc){ if(doc) state.editor = clone(doc); renderEditor(); qs('#editorModal').classList.add('open'); lockBodyScroll(); }
+    function closeEditor(){ qs('#editorModal').classList.remove('open'); unlockBodyScroll(); }
     function editorStatuses(type){ return type==='quote' ? ['brouillon','accepté','refusé','annulé'] : ['en attente','payé','annulé']; }
     function renderEditor(){ const doc = state.editor; if(!doc) return; qs('#editorTitle').textContent = doc.type==='quote' ? 'Édition du devis' : 'Édition de la facture'; qs('#editorSubtitle').textContent = `${doc.number} · ${doc.clientName || 'Sans client'}`; qs('#docClientName').value = doc.clientName || ''; qs('#docContact').value = doc.contact || ''; qs('#docEmail').value = doc.email || ''; qs('#docPhone').value = doc.phone || ''; qs('#docProject').value = doc.project || ''; qs('#docIssueDate').value = doc.issueDate || today(); qs('#docExpiryDate').value = doc.expiryDate || ''; qs('#expiryField').classList.toggle('hidden', doc.type !== 'quote'); const statuses = editorStatuses(doc.type); qs('#docStatus').innerHTML = statuses.map(s=>`<option value="${s}">${s}</option>`).join(''); qs('#docStatus').value = statuses.includes(doc.status) ? doc.status : statuses[0]; qs('#docDiscountType').value = doc.discountType || 'percent'; qs('#docDiscountValue').value = Number(doc.discountValue||0); qs('#docTpsRate').value = Number(doc.tpsRate||0); qs('#docTvqRate').value = Number(doc.tvqRate||0); qs('#docNotes').value = doc.notes || ''; qs('#clientsDatalist').innerHTML = state.clients.map(c=>`<option value="${escapeHtml(c.name)}"></option>`).join(''); qs('#convertBtn').classList.toggle('hidden', doc.type !== 'quote'); qs('#headConvertBtn').classList.toggle('hidden', doc.type !== 'quote'); renderLines(); renderSuggestions(); refreshSummary(); }
     function renderSuggestions(){ const box = qs('#serviceSuggestions'); const items = [...state.servicesCatalog].sort((a,b)=>(b.usedCount||0)-(a.usedCount||0)).slice(0,8); box.innerHTML = items.length ? items.map(s=>`<button class="btn" data-add-service="${s.id}">${escapeHtml(s.name)} · ${money(s.lastPrice||0)}</button>`).join('') : ''; }
@@ -673,9 +712,28 @@
     function syncEditorFromFields(){ const doc = state.editor; doc.clientName = qs('#docClientName').value.trim(); doc.contact = qs('#docContact').value.trim(); doc.email = qs('#docEmail').value.trim(); doc.phone = qs('#docPhone').value.trim(); doc.project = qs('#docProject').value.trim(); doc.issueDate = qs('#docIssueDate').value || today(); doc.expiryDate = doc.type==='quote' ? (qs('#docExpiryDate').value || '') : ''; doc.status = qs('#docStatus').value; doc.discountType = qs('#docDiscountType').value === 'fixed' ? 'fixed' : 'percent'; doc.discountValue = clamp(qs('#docDiscountValue').value || 0, 0); doc.tpsRate = clamp(qs('#docTpsRate').value || 0, 0); doc.tvqRate = clamp(qs('#docTvqRate').value || 0, 0); doc.notes = qs('#docNotes').value; doc.lines = (doc.lines||[]).map(line => ({ ...line, quantity: clamp(line.quantity, 0), unitPrice: clamp(line.unitPrice, 0) })); const matched = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(matched){ if(!doc.contact) doc.contact = matched.contact || ''; if(!doc.email) doc.email = matched.email || ''; if(!doc.phone) doc.phone = matched.phone || ''; } }
     function refreshSummary(){ syncEditorFromFields(); const t = totals(state.editor); qs('#editorSubtitle').textContent = `${state.editor.number} · ${state.editor.clientName || 'Sans client'}`; qs('#sumSubTotal').textContent = money(t.subTotal); qs('#sumDiscount').textContent = '- ' + money(t.discount); qs('#sumTPS').textContent = money(t.tps); qs('#sumTVQ').textContent = money(t.tvq); qs('#sumTotal').textContent = money(t.total); }
     function updateCountersOnCreate(type){ state.businesses = state.businesses.map(b=>{ if(b.id!==state.selectedBusinessId) return b; return type==='quote' ? {...b, nextQuoteNumber:(b.nextQuoteNumber||1)+1} : {...b, nextInvoiceNumber:(b.nextInvoiceNumber||1)+1}; }); }
-    function saveDocument(){ syncEditorFromFields(); const doc = state.editor; if(!doc.clientName.trim()){ alert('Ajoute au moins un client.'); return; } doc.updatedAt = new Date().toISOString(); doc.businessId = state.selectedBusinessId; const exists = state.documents.some(d=>d.id===doc.id); if(exists) state.documents = state.documents.map(d=>d.id===doc.id ? clone(doc) : d); else { state.documents.unshift(clone(doc)); updateCountersOnCreate(doc.type); } const now = new Date().toISOString(); const existingClient = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(existingClient){ Object.assign(existingClient, {contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } else { state.clients.unshift({id:uid(),name:doc.clientName,contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } const map = new Map(state.servicesCatalog.map(s=>[s.name.toLowerCase(),s])); doc.lines.forEach(line=>{ if(!line.name.trim()) return; const key = line.name.toLowerCase(); const old = map.get(key); if(old) Object.assign(old,{description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:(old.usedCount||0)+1}); else map.set(key,{id:uid(),name:line.name,description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:1}); }); state.servicesCatalog = Array.from(map.values()); saveState(); renderAll(); closeEditor(); }
+    function saveDocument(){
+      syncEditorFromFields();
+      const doc = state.editor;
+      doc.lines = validLines(doc.lines);
+      if(!doc.clientName.trim()){ alert('Ajoute au moins un client.'); return; }
+      if(!doc.lines.length){ alert('Ajoute au moins une ligne valide.'); return; }
+      doc.updatedAt = new Date().toISOString();
+      doc.businessId = state.selectedBusinessId;
+      const exists = state.documents.some(d=>d.id===doc.id);
+      if(exists) state.documents = state.documents.map(d=>d.id===doc.id ? clone(doc) : d);
+      else { state.documents.unshift(clone(doc)); updateCountersOnCreate(doc.type); }
+      const now = new Date().toISOString();
+      const existingClient = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase());
+      if(existingClient){ Object.assign(existingClient, {contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); }
+      else { state.clients.unshift({id:uid(),name:doc.clientName,contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); }
+      const map = new Map(state.servicesCatalog.map(s=>[s.name.toLowerCase(),s]));
+      doc.lines.forEach(line=>{ if(!line.name.trim()) return; const key = line.name.toLowerCase(); const old = map.get(key); if(old) Object.assign(old,{description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:(old.usedCount||0)+1}); else map.set(key,{id:uid(),name:line.name,description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:1}); });
+      state.servicesCatalog = Array.from(map.values());
+      saveState(); renderAll(); closeEditor();
+    }
     function duplicateDocument(id){ const original = state.documents.find(d=>d.id===id); if(!original) return; const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; state.editor = clone(original); state.editor.id = uid(); state.editor.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = type==='quote' ? 'brouillon' : 'en attente'; state.editor.issueDate = today(); state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
-    function convertDocument(id){ const source = typeof id === 'string' ? state.documents.find(d=>d.id===id) : state.editor; if(!source) return; const b = selectedBusiness(); const next = b.nextInvoiceNumber; state.editor = structuredClone(source); state.editor.id = uid(); state.editor.type = 'invoice'; state.editor.number = `${b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = 'en attente'; state.editor.expiryDate = ''; state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
+    function convertDocument(id){ const source = typeof id === 'string' ? state.documents.find(d=>d.id===id) : state.editor; if(!source) return; const b = selectedBusiness(); const next = b.nextInvoiceNumber; state.editor = clone(source); state.editor.id = uid(); state.editor.type = 'invoice'; state.editor.number = `${b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = 'en attente'; state.editor.expiryDate = ''; state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
     function deleteDocument(id){ if(!confirm('Supprimer ce document ?')) return; state.documents = state.documents.filter(d=>d.id!==id); saveState(); renderAll(); }
     function exportPDF(doc){
       if(!window.jspdf || !window.jspdf.jsPDF){
@@ -683,14 +741,16 @@
         return;
       }
 
-      const b = state.businesses.find(x=>x.id===doc.businessId) || selectedBusiness();
+      const safeDoc = { ...doc, lines: validLines(doc.lines) };
+      if (!safeDoc.lines.length) { alert('Ajoute au moins une ligne valide avant l'export PDF.'); return; }
+      const b = state.businesses.find(x=>x.id===safeDoc.businessId) || selectedBusiness();
       const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-      const t = totals(doc);
+      const t = totals(safeDoc);
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
       const margin = 16;
       const contentW = pageW - margin * 2;
-      const isQuote = doc.type === 'quote';
+      const isQuote = safeDoc.type === 'quote';
 
       const C = {
         ink: [17,24,39],
@@ -763,27 +823,27 @@
       txt(b.name || 'Juuicyy Prod', margin + 28, margin + 12, { size: 18, bold: true, color: C.white });
       txt(b.subtitle || 'Devis et factures intelligents', margin + 28, margin + 20, { size: 9, color: [209,213,219] });
       txt(isQuote ? 'DEVIS' : 'FACTURE', pageW - margin - 6, margin + 12, { size: 18, bold: true, color: C.white, align: 'right' });
-      txt(doc.number, pageW - margin - 6, margin + 20, { size: 10, color: [229,231,235], align: 'right' });
+      txt(safeDoc.number, pageW - margin - 6, margin + 20, { size: 10, color: [229,231,235], align: 'right' });
 
       let y = margin + 38;
 
       const leftW = 92;
       const rightW = contentW - leftW - 8;
       const issuerLines = [b.address, b.email, b.phone, b.tpsNumber ? `TPS: ${b.tpsNumber}` : '', b.tvqNumber ? `TVQ: ${b.tvqNumber}` : ''];
-      const clientLines = [doc.contact, doc.email, doc.phone, doc.project ? `Projet: ${doc.project}` : ''];
+      const clientLines = [safeDoc.contact, safeDoc.email, safeDoc.phone, safeDoc.project ? `Projet: ${safeDoc.project}` : ''];
       const leftH = drawPartyCard('ÉMETTEUR', b.name || 'Juuicyy Prod', issuerLines, margin, y, leftW);
-      const rightH = drawPartyCard('CLIENT', doc.clientName || '—', clientLines, margin + leftW + 8, y, rightW);
+      const rightH = drawPartyCard('CLIENT', safeDoc.clientName || '—', clientLines, margin + leftW + 8, y, rightW);
       const partyH = Math.max(leftH, rightH);
       if(leftH !== partyH) box(margin, y, leftW, partyH, C.soft, C.line, 0), drawPartyCard('ÉMETTEUR', b.name || 'Juuicyy Prod', issuerLines, margin, y, leftW);
-      if(rightH !== partyH) box(margin + leftW + 8, y, rightW, partyH, C.soft, C.line, 0), drawPartyCard('CLIENT', doc.clientName || '—', clientLines, margin + leftW + 8, y, rightW);
+      if(rightH !== partyH) box(margin + leftW + 8, y, rightW, partyH, C.soft, C.line, 0), drawPartyCard('CLIENT', safeDoc.clientName || '—', clientLines, margin + leftW + 8, y, rightW);
 
       y += partyH + 8;
       box(margin, y, contentW, 14, [255,251,235], [253,230,138], 0);
       const metaW = contentW / 3;
       [
-        ['Date', formatDate(doc.issueDate)],
-        [isQuote ? 'Expiration' : 'Statut', isQuote ? formatDate(doc.expiryDate) : (doc.status || '—')],
-        [isQuote ? 'Statut' : 'Paiement', isQuote ? (doc.status || '—') : (doc.status === 'payé' ? 'Reçu' : 'En attente')],
+        ['Date', formatDate(safeDoc.issueDate)],
+        [isQuote ? 'Expiration' : 'Statut', isQuote ? formatDate(safeDoc.expiryDate) : (safeDoc.status || '—')],
+        [isQuote ? 'Statut' : 'Paiement', isQuote ? (safeDoc.status || '—') : (safeDoc.status === 'payé' ? 'Reçu' : 'En attente')],
       ].forEach((item, i) => {
         const mx = margin + i * metaW + 5;
         txt(item[0], mx, y + 5.2, { size: 7.8, bold: true, color: C.accentDark });
@@ -818,7 +878,7 @@
         renderTableHead();
       };
 
-      doc.lines.forEach((item, idx) => {
+      safeDoc.lines.forEach((item, idx) => {
         const title = item.name || '—';
         const desc = item.description ? wrap(item.description, serviceW - 8, 4) : [];
         const rowH = 10 + (desc.length ? desc.length * 4.2 : 0);
@@ -832,7 +892,7 @@
         y += rowH + 3;
       });
 
-      const notesText = doc.notes && doc.notes.trim() ? doc.notes.trim() : 'Paiement dû selon les conditions convenues.';
+      const notesText = safeDoc.notes && safeDoc.notes.trim() ? safeDoc.notes.trim() : 'Paiement dû selon les conditions convenues.';
       const notesLines = wrap(notesText, 86, 5);
       const notesH = Math.max(26, 12 + notesLines.length * 4.5);
       const summaryRows = 5;
@@ -860,14 +920,19 @@
       line(margin, pageH - 14, pageW - margin, pageH - 14, C.line, 0.4);
       txt('Merci pour votre confiance.', margin, pageH - 8, { size: 8.3, color: C.muted });
       txt('© Juuicyy Prod — Tous droits réservés', pageW - margin, pageH - 8, { size: 8.3, color: C.muted, align: 'right' });
-      pdf.save(`${doc.number}.pdf`);
+      pdf.save(`${safeDoc.number}.pdf`);
     }
     function escapeHtml(str=''){ return String(str).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
     function escapeAttr(str=''){ return escapeHtml(str).replace(/`/g,'&#96;'); }
     function renderAll(){ applyTheme(); renderBusinessSelect(); renderTabs(); renderDashboard(); renderDocuments(); renderSettings(); saveState(); }
     function cloneCurrentEditor(){ if(!state.editor) return; const original = clone(state.editor); const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; original.id = uid(); original.number = `${type==='quote'?b.quotePrefix:b.invoicePrefix}-${String(next).padStart(3,'0')}`; original.status = type==='quote' ? 'brouillon' : 'en attente'; original.issueDate = today(); original.createdAt = new Date().toISOString(); original.updatedAt = new Date().toISOString(); state.editor = original; renderEditor(); }
-    function bindEvents(){ qsa('.tab').forEach(btn=>btn.addEventListener('click', ()=>{ state.activeTab = btn.dataset.tab; renderTabs(); })); qs('#businessSelect').addEventListener('change', e=>{ state.selectedBusinessId = e.target.value; renderSettings(); saveState(); }); qs('#newQuoteBtn').addEventListener('click', ()=> createDocument('quote')); qs('#newInvoiceBtn').addEventListener('click', ()=> createDocument('invoice')); qs('#searchInput').addEventListener('input', e=>{ state.filters.search = e.target.value; renderDocuments(); }); qs('#typeFilter').addEventListener('change', e=>{ state.filters.type = e.target.value; renderDocuments(); }); qs('#statusFilter').addEventListener('change', e=>{ state.filters.status = e.target.value; renderDocuments(); }); qs('#dateFilter').addEventListener('change', e=>{ state.filters.date = e.target.value; renderDocuments(); }); qs('#documentsList').addEventListener('click', e=>{ const btn = e.target.closest('[data-action]'); if(!btn) return; const { action, id } = btn.dataset; if(action==='open') openEditor(state.documents.find(d=>d.id===id)); if(action==='duplicate') duplicateDocument(id); if(action==='convert') convertDocument(id); if(action==='pdf') { const d=state.documents.find(x=>x.id===id); if(d) exportPDF(d); } if(action==='delete') deleteDocument(id); }); ['setName','setSubtitle','setAddress','setEmail','setPhone','setQuotePrefix','setInvoicePrefix','setTPS','setTVQ','setNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', ()=>{ const b = selectedBusiness(); b.name = qs('#setName').value; b.subtitle = qs('#setSubtitle').value; b.address = qs('#setAddress').value; b.email = qs('#setEmail').value; b.phone = qs('#setPhone').value; b.quotePrefix = qs('#setQuotePrefix').value.toUpperCase() || 'DEV'; b.invoicePrefix = qs('#setInvoicePrefix').value.toUpperCase() || 'FAC'; b.tpsNumber = qs('#setTPS').value; b.tvqNumber = qs('#setTVQ').value; b.defaultNotes = qs('#setNotes').value; renderBusinessSelect(); saveState(); }); }); qs('#closeEditorBtn').addEventListener('click', closeEditor); qs('#editorModal').addEventListener('click', e=>{ if(e.target.id==='editorModal') closeEditor(); }); qs('#addLineBtn').addEventListener('click', ()=>{ state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }); qs('#saveDocBtn').addEventListener('click', saveDocument); qs('#headSaveBtn').addEventListener('click', saveDocument); qs('#convertBtn').addEventListener('click', ()=> convertDocument()); qs('#headConvertBtn').addEventListener('click', ()=> convertDocument()); qs('#duplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#headDuplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#exportPdfBtn').addEventListener('click', ()=>{ if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }); ['docClientName','docContact','docEmail','docPhone','docProject','docIssueDate','docExpiryDate','docStatus','docDiscountType','docDiscountValue','docTpsRate','docTvqRate','docNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', refreshSummary); qs('#'+id).addEventListener('change', refreshSummary); }); qs('#docClientName').addEventListener('change', ()=>{ const value = qs('#docClientName').value.trim().toLowerCase(); const matched = state.clients.find(c=>c.name.toLowerCase()===value); if(matched){ if(!qs('#docContact').value) qs('#docContact').value = matched.contact || ''; if(!qs('#docEmail').value) qs('#docEmail').value = matched.email || ''; if(!qs('#docPhone').value) qs('#docPhone').value = matched.phone || ''; refreshSummary(); } }); qs('#lineList').addEventListener('input', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; const line = state.editor.lines.find(l=>l.id===input.dataset.line); if(!line) return; const key = input.dataset.key; line[key] = (key==='quantity' || key==='unitPrice') ? Number(input.value||0) : input.value; const totalEl = input.closest('.line-item')?.querySelector('.line-total'); if(totalEl){ totalEl.textContent = `Ligne ${state.editor.lines.findIndex(l=>l.id===line.id)+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}`; } refreshSummary(); }); qs('#lineList').addEventListener('change', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; renderLines(); }); qs('#lineList').addEventListener('click', e=>{ const btn = e.target.closest('[data-remove-line]'); if(!btn) return; const id = btn.dataset.removeLine; state.editor.lines = state.editor.lines.filter(l=>l.id!==id); if(!state.editor.lines.length) state.editor.lines = [emptyLine()]; renderLines(); refreshSummary(); }); qs('#serviceSuggestions').addEventListener('click', e=>{ const btn = e.target.closest('[data-add-service]'); if(!btn) return; const service = state.servicesCatalog.find(s=>s.id===btn.dataset.addService); if(!service) return; state.editor.lines.push({id:uid(),name:service.name,description:service.description||'',quantity:1,unitPrice:Number(service.lastPrice||0)}); renderLines(); refreshSummary(); }); document.addEventListener('keydown', e=>{ if(e.key==='Escape' && qs('#editorModal').classList.contains('open')) closeEditor(); }); }
-    loadState(); bindEvents(); renderAll();
+    function bindEvents(){ qsa('.tab').forEach(btn=>btn.addEventListener('click', ()=>{ state.activeTab = btn.dataset.tab; renderTabs(); })); qs('#businessSelect').addEventListener('change', e=>{ state.selectedBusinessId = e.target.value; renderSettings(); saveState(); }); qs('#newQuoteBtn').addEventListener('click', ()=> createDocument('quote')); qs('#newInvoiceBtn').addEventListener('click', ()=> createDocument('invoice')); qs('#searchInput').addEventListener('input', e=>{ state.filters.search = e.target.value; renderDocuments(); }); qs('#typeFilter').addEventListener('change', e=>{ state.filters.type = e.target.value; renderDocuments(); }); qs('#statusFilter').addEventListener('change', e=>{ state.filters.status = e.target.value; renderDocuments(); }); qs('#dateFilter').addEventListener('change', e=>{ state.filters.date = e.target.value; renderDocuments(); }); qs('#documentsList').addEventListener('click', e=>{ const btn = e.target.closest('[data-action]'); if(!btn) return; const { action, id } = btn.dataset; if(action==='open') openEditor(state.documents.find(d=>d.id===id)); if(action==='duplicate') duplicateDocument(id); if(action==='convert') convertDocument(id); if(action==='pdf') { const d=state.documents.find(x=>x.id===id); if(d) exportPDF(d); } if(action==='delete') deleteDocument(id); }); ['setName','setSubtitle','setAddress','setEmail','setPhone','setQuotePrefix','setInvoicePrefix','setTPS','setTVQ','setNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', ()=>{ const b = selectedBusiness(); b.name = qs('#setName').value; b.subtitle = qs('#setSubtitle').value; b.address = qs('#setAddress').value; b.email = qs('#setEmail').value; b.phone = qs('#setPhone').value; b.quotePrefix = sanitizePrefix(qs('#setQuotePrefix').value, 'DEV'); b.invoicePrefix = sanitizePrefix(qs('#setInvoicePrefix').value, 'FAC'); b.tpsNumber = qs('#setTPS').value; b.tvqNumber = qs('#setTVQ').value; b.defaultNotes = qs('#setNotes').value; renderBusinessSelect(); saveState(); }); }); qs('#closeEditorBtn').addEventListener('click', closeEditor); qs('#editorModal').addEventListener('click', e=>{ if(e.target.id==='editorModal') closeEditor(); }); qs('#addLineBtn').addEventListener('click', ()=>{ state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }); qs('#saveDocBtn').addEventListener('click', saveDocument); qs('#headSaveBtn').addEventListener('click', saveDocument); qs('#convertBtn').addEventListener('click', ()=> convertDocument()); qs('#headConvertBtn').addEventListener('click', ()=> convertDocument()); qs('#duplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#headDuplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#exportPdfBtn').addEventListener('click', ()=>{ if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }); ['docClientName','docContact','docEmail','docPhone','docProject','docIssueDate','docExpiryDate','docStatus','docDiscountType','docDiscountValue','docTpsRate','docTvqRate','docNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', refreshSummary); qs('#'+id).addEventListener('change', refreshSummary); }); qs('#docClientName').addEventListener('change', ()=>{ const value = qs('#docClientName').value.trim().toLowerCase(); const matched = state.clients.find(c=>c.name.toLowerCase()===value); if(matched){ if(!qs('#docContact').value) qs('#docContact').value = matched.contact || ''; if(!qs('#docEmail').value) qs('#docEmail').value = matched.email || ''; if(!qs('#docPhone').value) qs('#docPhone').value = matched.phone || ''; refreshSummary(); } }); qs('#lineList').addEventListener('input', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; const line = state.editor.lines.find(l=>l.id===input.dataset.line); if(!line) return; const key = input.dataset.key; line[key] = (key==='quantity' || key==='unitPrice') ? Number(input.value||0) : input.value; const totalEl = input.closest('.line-item')?.querySelector('.line-total'); if(totalEl){ totalEl.textContent = `Ligne ${state.editor.lines.findIndex(l=>l.id===line.id)+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}`; } refreshSummary(); }); qs('#lineList').addEventListener('change', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; renderLines(); }); qs('#lineList').addEventListener('click', e=>{ const btn = e.target.closest('[data-remove-line]'); if(!btn) return; const id = btn.dataset.removeLine; state.editor.lines = state.editor.lines.filter(l=>l.id!==id); if(!state.editor.lines.length) state.editor.lines = [emptyLine()]; renderLines(); refreshSummary(); }); qs('#serviceSuggestions').addEventListener('click', e=>{ const btn = e.target.closest('[data-add-service]'); if(!btn) return; const service = state.servicesCatalog.find(s=>s.id===btn.dataset.addService); if(!service) return; state.editor.lines.push({id:uid(),name:service.name,description:service.description||'',quantity:1,unitPrice:Number(service.lastPrice||0)}); renderLines(); refreshSummary(); }); document.addEventListener('keydown', e=>{ if(e.key==='Escape' && qs('#editorModal').classList.contains('open')) closeEditor(); }); }
+    loadState();
+    bindEvents();
+    setViewportUnit();
+    window.addEventListener('resize', setViewportUnit, { passive:true });
+    window.visualViewport?.addEventListener('resize', setViewportUnit, { passive:true });
+    renderAll();
   </script>
 </body>
 </html>
