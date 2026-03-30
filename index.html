@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Juuicyy Prod — Devis et factures intelligents</title>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg:#f3f6fb;
@@ -135,13 +138,257 @@
       .sticky-mobile{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(0,0,0,0), var(--soft) 18%);padding-top:10px}
     }
   </style>
+<style id="nova-timekeeping-theme">
+  :root{
+    --bg:#080a0f !important;
+    --bg2:#0b0e15 !important;
+    --panel:rgba(14,17,25,.88) !important;
+    --panel-solid:rgba(11,14,21,.98) !important;
+    --text:#e8eaf0 !important;
+    --muted:#6b7a8d !important;
+    --line:rgba(255,255,255,.07) !important;
+    --line-strong:rgba(255,255,255,.14) !important;
+    --soft:rgba(255,255,255,.035) !important;
+    --primary:#f97316 !important;
+    --primary-text:#ffffff !important;
+    --success:#10b981 !important;
+    --warning:#f59e0b !important;
+    --danger:#ef4444 !important;
+    --accent:#f97316 !important;
+    --accent-dim:rgba(249,115,22,.12) !important;
+    --shadow:0 16px 48px rgba(0,0,0,.45) !important;
+    --shadow-xl:0 32px 80px rgba(0,0,0,.6) !important;
+    --radius-xl:24px !important;
+    --radius-lg:18px !important;
+    --radius-md:12px !important;
+    --radius-sm:8px !important;
+    --font-ui:'Figtree',system-ui,sans-serif !important;
+    --font-head:'Syne',sans-serif !important;
+    --font-mono:'JetBrains Mono',monospace !important;
+  }
+  html,body{
+    font-family:var(--font-ui) !important;
+    background:var(--bg) !important;
+    color:var(--text) !important;
+  }
+  body{
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 70% 45% at 10% 0%, rgba(249,115,22,.09) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 35% at 90% 8%, rgba(251,146,60,.06) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 50% 100%, rgba(249,115,22,.04) 0%, transparent 50%);
+    pointer-events:none; z-index:0;
+  }
+  body.dark{color-scheme:dark;}
+  .app{
+    position:relative; z-index:1;
+    max-width:1200px;
+    margin:0 auto;
+    padding:20px 16px 32px !important;
+  }
+  button,input,select,textarea{font:inherit}
+  input::placeholder, textarea::placeholder{color:var(--muted) !important;}
+  select option{background:#1a1d26;color:var(--text);}
+  .glass,.card,.mini,.client-row,.line-item,.helper,.doc,.header,.tabs{box-shadow:var(--shadow) !important;}
+  .glass{
+    background:var(--panel) !important;
+    border:1px solid var(--line) !important;
+    border-radius:var(--radius-xl) !important;
+    backdrop-filter:blur(20px) !important;
+    -webkit-backdrop-filter:blur(20px) !important;
+  }
+  .header{
+    padding:24px !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:end !important;
+    gap:20px !important;
+    position:relative !important;
+    top:auto !important;
+    z-index:1 !important;
+    background:rgba(255,255,255,.035) !important;
+  }
+  .brand{min-width:0;}
+  .brand-kicker{
+    font-family:var(--font-head);
+    font-size:.75rem;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .brand-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 10px var(--accent);
+    animation:brand-pulse 2.5s ease infinite;
+    flex:0 0 auto;
+  }
+  @keyframes brand-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .brand h1{
+    margin:0 !important;
+    font-family:var(--font-head) !important;
+    font-size:clamp(1.7rem,4vw,2.6rem) !important;
+    font-weight:800 !important;
+    line-height:1.05 !important;
+    letter-spacing:-.025em !important;
+    color:var(--text) !important;
+  }
+  .brand p,.section-sub,.meta,.footer,.field label,.helper,.stat .label{color:#9aa3b2 !important;}
+  .brand p{margin:6px 0 0 !important; font-size:.92rem !important; max-width:60ch;}
+  .actions{display:flex;gap:8px !important;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .btn,.input,.select,.textarea,.badge,.icon-btn{
+    font-family:var(--font-ui) !important;
+    border-radius:var(--radius-md) !important;
+    border:1px solid var(--line-strong) !important;
+    background:rgba(255,255,255,.05) !important;
+    color:var(--text) !important;
+    transition:border-color .15s, background .15s, transform .12s ease, box-shadow .15s ease !important;
+  }
+  .tab{font-family:var(--font-ui) !important;transition:border-color .15s, background .15s, transform .12s ease, box-shadow .15s ease !important;}
+  .input,.select,.textarea{width:100%;padding:11px 14px !important;outline:none !important}
+  .input:focus,.select:focus,.textarea:focus{
+    border-color:var(--accent) !important;
+    background:rgba(249,115,22,.04) !important;
+    box-shadow:0 0 0 3px rgba(249,115,22,.1) !important;
+  }
+  .btn{padding:10px 16px !important;font-weight:600 !important;font-size:.875rem !important;white-space:nowrap}
+  .btn:hover,.icon-btn:hover{transform:translateY(-1px)}
+  .btn.primary{
+    background:var(--accent) !important;color:#fff !important;border-color:transparent !important;
+    box-shadow:0 4px 16px rgba(249,115,22,.28) !important;
+  }
+  .btn.primary:hover{box-shadow:0 6px 22px rgba(249,115,22,.45) !important;}
+  .btn.secondary{background:rgba(255,255,255,.07) !important}
+  .btn.ghost{background:transparent !important;color:#9aa3b2 !important;border:1px solid var(--line) !important}
+  .btn.danger{color:var(--danger) !important;background:rgba(239,68,68,.07) !important;border-color:rgba(239,68,68,.28) !important}
+  .icon-btn{min-width:42px;min-height:42px;display:inline-flex;align-items:center;justify-content:center}
+  #themeBtn{display:none !important}
+  .tabs{
+    margin-top:14px !important;padding:6px !important;display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:6px !important;
+    background:rgba(8,10,15,.92) !important;border-radius:20px !important;
+    position:sticky;top:10px;z-index:30;
+  }
+  .tab{
+    padding:10px 6px !important;border:0 !important;background:transparent !important;
+    color:#9aa3b2 !important;font-weight:600 !important;font-size:.86rem !important;border-radius:14px !important;cursor:pointer;
+  }
+  .tab.active{background:var(--accent) !important;color:#fff !important;box-shadow:0 2px 14px rgba(249,115,22,.35) !important}
+  .page{margin-top:14px !important}
+  .stats{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:10px !important}
+  .stat,.mini,.client-row,.doc,.line-item,.helper{
+    background:rgba(255,255,255,.03) !important;
+    border:1px solid var(--line) !important;
+    border-radius:var(--radius-lg) !important;
+  }
+  .stat .value,.big,#sumTotal,#sumSubTotal,#sumTPS,#sumTVQ,#sumDiscount,.line-total{font-family:var(--font-mono) !important}
+  .stat .value,.big{font-size:1.5rem !important;font-weight:800 !important;color:var(--text) !important}
+  .card{padding:20px !important}
+  .section-title{
+    font-family:var(--font-head) !important;
+    font-size:1.15rem !important;font-weight:700 !important;
+    letter-spacing:-.01em !important;color:var(--text) !important;
+  }
+  .split,.grid,.quick-grid,.filters,.settings-grid,.form-grid,.documents,.clients-list,.line-list,.totals{gap:14px !important}
+  .doc{padding:16px !important;align-items:flex-start !important;min-width:0}
+  .doc > div:first-child{min-width:0; flex:1 1 auto}
+  .doc-title{font-family:var(--font-head) !important;font-size:1.06rem !important;color:var(--text) !important;overflow-wrap:anywhere}
+  .doc-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-self:stretch}
+  .badge{
+    font-size:.69rem !important;padding:4px 8px !important;border-radius:999px !important;
+    font-weight:700 !important;background:rgba(255,255,255,.07) !important;letter-spacing:.02em !important;
+  }
+  .badge.success{background:rgba(16,185,129,.12) !important;color:#6ee7b7 !important;border-color:rgba(16,185,129,.28) !important}
+  .badge.warn{background:rgba(249,115,22,.12) !important;color:#fdba74 !important;border-color:rgba(249,115,22,.25) !important}
+  .badge.danger{background:rgba(239,68,68,.09) !important;color:#fca5a5 !important;border-color:rgba(239,68,68,.25) !important}
+  .footer{padding:22px 4px 8px !important;font-size:.78rem !important}
+  .modal{
+    background:rgba(0,0,0,.65) !important;
+    backdrop-filter:blur(8px) !important;
+    -webkit-backdrop-filter:blur(8px) !important;
+    padding:16px !important;
+    align-items:center !important;
+  }
+  .modal-panel{
+    width:min(100%, 1320px) !important;
+    height:min(92vh, 960px) !important;
+    max-height:92vh !important;
+    background:rgba(11,14,21,.98) !important;
+    border:1px solid var(--line-strong) !important;
+    border-radius:24px !important;
+    box-shadow:var(--shadow-xl) !important;
+    overflow:hidden !important;
+  }
+  .modal-head{
+    padding:18px 20px !important;border-bottom:1px solid var(--line) !important;
+    background:rgba(11,14,21,.92) !important;box-shadow:none !important;
+  }
+  .modal-head > div:first-child > div:first-child,#editorTitle{
+    font-family:var(--font-head) !important;font-weight:700 !important;color:var(--text) !important;
+  }
+  .editor{
+    background:transparent !important;
+    grid-template-columns:minmax(0,1.4fr) minmax(320px,.75fr) !important;
+    height:calc(100% - 78px) !important;
+    min-height:0 !important;
+  }
+  .editor-main{padding:22px !important;overflow:auto;background:transparent !important;min-width:0}
+  .editor-side{
+    padding:22px !important;border-left:1px solid var(--line) !important;
+    background:rgba(255,255,255,.02) !important;overflow:auto;min-width:0
+  }
+  .totals .row{color:#9aa3b2 !important}
+  .totals .row.total{padding-top:12px !important;border-top:1px solid var(--line) !important;color:var(--text) !important}
+  .line-grid{
+    display:grid !important;
+    grid-template-columns:minmax(0,1.2fr) minmax(0,1.5fr) minmax(88px,.65fr) minmax(110px,.85fr) auto !important;
+    gap:10px !important;align-items:end !important;
+  }
+  .line-grid > .field,.line-grid input{min-width:0}
+  .line-total{color:#9aa3b2 !important;font-size:.82rem !important;text-align:right}
+  .helper{font-size:.86rem !important;border-style:dashed !important}
+  .sticky-mobile{background:transparent !important}
+  @media (max-width:1024px){
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+    .split,.editor{grid-template-columns:1fr !important}
+    .editor{height:auto !important}
+    .editor-side{border-left:0 !important;border-top:1px solid var(--line) !important}
+    .filters{grid-template-columns:1fr 1fr !important}
+  }
+  @media (max-width:720px){
+    .app{padding:20px 16px 32px !important}
+    .header{grid-template-columns:1fr !important;align-items:start !important;padding:24px !important}
+    .actions{justify-content:stretch !important}
+    .actions .btn,.actions .select{flex:1 1 calc(50% - 8px)}
+    .stats,.quick-grid,.filters,.settings-grid,.form-grid{grid-template-columns:1fr !important}
+    .doc{flex-direction:column !important}
+    .doc-actions{justify-content:stretch !important;width:100%}
+    .doc-actions .btn{flex:1 1 calc(50% - 8px)}
+    .modal{padding:0 !important;align-items:stretch !important}
+    .modal-panel{width:100% !important;height:100vh !important;max-height:100vh !important;border-radius:0 !important;border:0 !important}
+    .modal-head{padding:14px !important;align-items:flex-start !important;flex-direction:column !important}
+    .editor-main,.editor-side{padding:14px !important}
+    .line-grid{grid-template-columns:1fr !important}
+  }
+</style>
 </head>
 <body>
   <div class="app">
     <header class="glass header">
       <div class="brand">
-        <h1>Juuicyy Prod</h1>
-        <p>Devis et factures intelligents</p>
+        <div class="brand-kicker"><span class="brand-dot"></span>Juuicyy Prod</div>
+        <h1>Devis &amp; factures</h1>
+        <p>Création rapide, calcul automatique et export PDF dans la DA Juuicyy Prod.</p>
       </div>
       <div class="actions">
         <select id="businessSelect" class="select"></select>
@@ -363,7 +610,13 @@
 
     const qs = (s,p=document)=>p.querySelector(s);
     const qsa = (s,p=document)=>Array.from(p.querySelectorAll(s));
-    const uid = ()=> (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()));
+    const uid = ()=> (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    const clone = (value)=> typeof structuredClone === 'function' ? structuredClone(value) : JSON.parse(JSON.stringify(value));
+    const clamp = (value, min=0, max=Number.POSITIVE_INFINITY)=>{
+      const n = Number(value);
+      if (!Number.isFinite(n)) return min;
+      return Math.min(max, Math.max(min, n));
+    };
     const today = ()=> new Date().toISOString().slice(0,10);
     const plusDays = (d)=> new Date(Date.now()+d*86400000).toISOString().slice(0,10);
     const money = (v)=> new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD',maximumFractionDigits:2}).format(Number(v||0));
@@ -374,12 +627,12 @@
       id: uid(), type, number:'', status:type==='quote'?'brouillon':'en attente', clientName:'', contact:'', email:'', phone:'', project:'', issueDate:today(), expiryDate:type==='quote'?plusDays(14):'', lines:[emptyLine()], discountType:'percent', discountValue:0, tpsRate:5, tvqRate:9.975, notes:selectedBusiness().defaultNotes || '', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), businessId:selectedBusiness().id,
     });
     const totals = (doc)=>{
-      const subTotal = (doc.lines||[]).reduce((sum,l)=> sum + Number(l.quantity||0)*Number(l.unitPrice||0), 0);
-      const rawDiscount = Number(doc.discountValue||0);
-      const discount = doc.discountType==='percent' ? subTotal*(rawDiscount/100) : rawDiscount;
+      const subTotal = (doc.lines||[]).reduce((sum,l)=> sum + clamp(l.quantity,0)*clamp(l.unitPrice,0), 0);
+      const rawDiscount = clamp(doc.discountValue, 0);
+      const discount = doc.discountType==='percent' ? subTotal*(Math.min(rawDiscount,100)/100) : Math.min(rawDiscount, subTotal);
       const taxableBase = Math.max(0, subTotal - discount);
-      const tps = taxableBase*(Number(doc.tpsRate||0)/100);
-      const tvq = taxableBase*(Number(doc.tvqRate||0)/100);
+      const tps = taxableBase*(clamp(doc.tpsRate,0)/100);
+      const tvq = taxableBase*(clamp(doc.tvqRate,0)/100);
       return {subTotal, discount, taxableBase, tps, tvq, total:taxableBase+tps+tvq};
     };
     const statusBadge = (status)=>{
@@ -392,9 +645,17 @@
     function loadState(){
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return;
-      try{ const data = JSON.parse(raw); if(data.theme) state.theme = data.theme; if(data.selectedBusinessId) state.selectedBusinessId = data.selectedBusinessId; if(Array.isArray(data.businesses) && data.businesses.length) state.businesses = data.businesses; if(Array.isArray(data.clients)) state.clients = data.clients; if(Array.isArray(data.servicesCatalog)) state.servicesCatalog = data.servicesCatalog; if(Array.isArray(data.documents)) state.documents = data.documents; }catch(e){}
+      try{
+        const data = JSON.parse(raw);
+        state.theme = 'dark';
+        if(data.selectedBusinessId) state.selectedBusinessId = data.selectedBusinessId;
+        if(Array.isArray(data.businesses) && data.businesses.length) state.businesses = data.businesses;
+        if(Array.isArray(data.clients)) state.clients = data.clients;
+        if(Array.isArray(data.servicesCatalog)) state.servicesCatalog = data.servicesCatalog;
+        if(Array.isArray(data.documents)) state.documents = data.documents;
+      }catch(e){}
     }
-    function applyTheme(){ document.body.classList.toggle('dark', state.theme==='dark'); qs('#themeBtn').textContent = state.theme==='dark' ? '☀️' : '🌙'; }
+    function applyTheme(){ state.theme = 'dark'; document.body.classList.add('dark'); }
     function renderBusinessSelect(){ const sel = qs('#businessSelect'); sel.innerHTML = state.businesses.map(b=>`<option value="${b.id}">${b.name}</option>`).join(''); sel.value = state.selectedBusinessId; }
     function renderTabs(){ qsa('.tab').forEach(btn=>btn.classList.toggle('active', btn.dataset.tab===state.activeTab)); qsa('.page').forEach(page=>page.classList.toggle('active', page.id===`page-${state.activeTab}`)); }
     function dashboardData(){ const invoices = state.documents.filter(d=>d.type==='invoice'); const paid = invoices.filter(d=>d.status==='payé'); const pending = invoices.filter(d=>d.status==='en attente'); const totalRevenue = paid.reduce((sum,d)=> sum + totals(d).total, 0); const seven = new Date(); seven.setDate(seven.getDate()-7); const month = new Date(); month.setMonth(month.getMonth()-1); return { totalRevenue, paidCount: paid.length, pendingCount: pending.length, clientCount: state.clients.length, weekRevenue: paid.filter(d=>new Date(d.issueDate||d.createdAt)>=seven).reduce((s,d)=>s+totals(d).total,0), monthRevenue: paid.filter(d=>new Date(d.issueDate||d.createdAt)>=month).reduce((s,d)=>s+totals(d).total,0) }; }
@@ -403,17 +664,17 @@
     function renderDocuments(){ const list = qs('#documentsList'); const docs = filteredDocuments(); list.innerHTML = docs.length ? docs.map(doc=>{ const t = totals(doc); return `<article class="glass doc"><div><div class="badges"><span class="badge">${doc.type==='quote'?'Devis':'Facture'}</span>${statusBadge(doc.status)}</div><h3 class="doc-title">${escapeHtml(doc.number)}</h3><div class="meta">${escapeHtml(doc.clientName)} · ${escapeHtml(doc.project || 'Sans projet')}</div><div class="meta">${formatDate(doc.issueDate)} · Total ${money(t.total)}</div></div><div class="doc-actions"><button class="btn secondary" data-action="open" data-id="${doc.id}">Ouvrir</button><button class="btn" data-action="duplicate" data-id="${doc.id}">Dupliquer</button>${doc.type==='quote' ? `<button class="btn" data-action="convert" data-id="${doc.id}">Facturer</button>` : ''}<button class="btn" data-action="pdf" data-id="${doc.id}">PDF</button><button class="btn danger" data-action="delete" data-id="${doc.id}">Supprimer</button></div></article>`; }).join('') : `<article class="glass empty">Aucun document pour le moment.</article>`; }
     function renderSettings(){ const b = selectedBusiness(); qs('#setName').value = b.name || ''; qs('#setSubtitle').value = b.subtitle || ''; qs('#setAddress').value = b.address || ''; qs('#setEmail').value = b.email || ''; qs('#setPhone').value = b.phone || ''; qs('#setQuotePrefix').value = b.quotePrefix || 'DEV'; qs('#setInvoicePrefix').value = b.invoicePrefix || 'FAC'; qs('#setTPS').value = b.tpsNumber || ''; qs('#setTVQ').value = b.tvqNumber || ''; qs('#setNotes').value = b.defaultNotes || ''; }
     function createDocument(type){ const b = selectedBusiness(); const doc = emptyDoc(type); const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; doc.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor = doc; openEditor(); }
-    function openEditor(doc){ if(doc) state.editor = structuredClone(doc); renderEditor(); qs('#editorModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function openEditor(doc){ if(doc) state.editor = clone(doc); renderEditor(); qs('#editorModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
     function closeEditor(){ qs('#editorModal').classList.remove('open'); document.body.style.overflow = ''; }
     function editorStatuses(type){ return type==='quote' ? ['brouillon','accepté','refusé','annulé'] : ['en attente','payé','annulé']; }
     function renderEditor(){ const doc = state.editor; if(!doc) return; qs('#editorTitle').textContent = doc.type==='quote' ? 'Édition du devis' : 'Édition de la facture'; qs('#editorSubtitle').textContent = `${doc.number} · ${doc.clientName || 'Sans client'}`; qs('#docClientName').value = doc.clientName || ''; qs('#docContact').value = doc.contact || ''; qs('#docEmail').value = doc.email || ''; qs('#docPhone').value = doc.phone || ''; qs('#docProject').value = doc.project || ''; qs('#docIssueDate').value = doc.issueDate || today(); qs('#docExpiryDate').value = doc.expiryDate || ''; qs('#expiryField').classList.toggle('hidden', doc.type !== 'quote'); const statuses = editorStatuses(doc.type); qs('#docStatus').innerHTML = statuses.map(s=>`<option value="${s}">${s}</option>`).join(''); qs('#docStatus').value = statuses.includes(doc.status) ? doc.status : statuses[0]; qs('#docDiscountType').value = doc.discountType || 'percent'; qs('#docDiscountValue').value = Number(doc.discountValue||0); qs('#docTpsRate').value = Number(doc.tpsRate||0); qs('#docTvqRate').value = Number(doc.tvqRate||0); qs('#docNotes').value = doc.notes || ''; qs('#clientsDatalist').innerHTML = state.clients.map(c=>`<option value="${escapeHtml(c.name)}"></option>`).join(''); qs('#convertBtn').classList.toggle('hidden', doc.type !== 'quote'); qs('#headConvertBtn').classList.toggle('hidden', doc.type !== 'quote'); renderLines(); renderSuggestions(); refreshSummary(); }
     function renderSuggestions(){ const box = qs('#serviceSuggestions'); const items = [...state.servicesCatalog].sort((a,b)=>(b.usedCount||0)-(a.usedCount||0)).slice(0,8); box.innerHTML = items.length ? items.map(s=>`<button class="btn" data-add-service="${s.id}">${escapeHtml(s.name)} · ${money(s.lastPrice||0)}</button>`).join('') : ''; }
     function renderLines(){ const doc = state.editor; const list = qs('#lineList'); const focused = document.activeElement; const activeLineId = focused?.dataset?.line || null; const activeKey = focused?.dataset?.key || null; const selectionStart = typeof focused?.selectionStart === 'number' ? focused.selectionStart : null; const selectionEnd = typeof focused?.selectionEnd === 'number' ? focused.selectionEnd : null; list.innerHTML = doc.lines.map((line,index)=>`<div class="line-item"><div class="line-grid"><div class="field"><label>Nom</label><input class="input" data-line="${line.id}" data-key="name" value="${escapeAttr(line.name)}"></div><div class="field"><label>Description</label><input class="input" data-line="${line.id}" data-key="description" value="${escapeAttr(line.description)}"></div><div class="field"><label>Qté</label><input class="input" type="number" min="0" step="1" data-line="${line.id}" data-key="quantity" value="${Number(line.quantity||0)}"></div><div class="field"><label>Prix unitaire</label><input class="input" type="number" min="0" step="0.01" data-line="${line.id}" data-key="unitPrice" value="${Number(line.unitPrice||0)}"></div><button class="btn danger" data-remove-line="${line.id}">Supprimer</button></div><div class="line-total">Ligne ${index+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}</div></div>`).join(''); if(activeLineId && activeKey){ const nextInput = list.querySelector(`[data-line="${activeLineId}"][data-key="${activeKey}"]`); if(nextInput){ nextInput.focus(); if(selectionStart !== null && selectionEnd !== null && typeof nextInput.setSelectionRange === 'function'){ nextInput.setSelectionRange(selectionStart, selectionEnd); } } } }
-    function syncEditorFromFields(){ const doc = state.editor; doc.clientName = qs('#docClientName').value.trim(); doc.contact = qs('#docContact').value.trim(); doc.email = qs('#docEmail').value.trim(); doc.phone = qs('#docPhone').value.trim(); doc.project = qs('#docProject').value.trim(); doc.issueDate = qs('#docIssueDate').value || today(); doc.expiryDate = qs('#docExpiryDate').value || ''; doc.status = qs('#docStatus').value; doc.discountType = qs('#docDiscountType').value; doc.discountValue = Number(qs('#docDiscountValue').value || 0); doc.tpsRate = Number(qs('#docTpsRate').value || 0); doc.tvqRate = Number(qs('#docTvqRate').value || 0); doc.notes = qs('#docNotes').value; const matched = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(matched){ if(!doc.contact) doc.contact = matched.contact || ''; if(!doc.email) doc.email = matched.email || ''; if(!doc.phone) doc.phone = matched.phone || ''; } }
+    function syncEditorFromFields(){ const doc = state.editor; doc.clientName = qs('#docClientName').value.trim(); doc.contact = qs('#docContact').value.trim(); doc.email = qs('#docEmail').value.trim(); doc.phone = qs('#docPhone').value.trim(); doc.project = qs('#docProject').value.trim(); doc.issueDate = qs('#docIssueDate').value || today(); doc.expiryDate = doc.type==='quote' ? (qs('#docExpiryDate').value || '') : ''; doc.status = qs('#docStatus').value; doc.discountType = qs('#docDiscountType').value === 'fixed' ? 'fixed' : 'percent'; doc.discountValue = clamp(qs('#docDiscountValue').value || 0, 0); doc.tpsRate = clamp(qs('#docTpsRate').value || 0, 0); doc.tvqRate = clamp(qs('#docTvqRate').value || 0, 0); doc.notes = qs('#docNotes').value; doc.lines = (doc.lines||[]).map(line => ({ ...line, quantity: clamp(line.quantity, 0), unitPrice: clamp(line.unitPrice, 0) })); const matched = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(matched){ if(!doc.contact) doc.contact = matched.contact || ''; if(!doc.email) doc.email = matched.email || ''; if(!doc.phone) doc.phone = matched.phone || ''; } }
     function refreshSummary(){ syncEditorFromFields(); const t = totals(state.editor); qs('#editorSubtitle').textContent = `${state.editor.number} · ${state.editor.clientName || 'Sans client'}`; qs('#sumSubTotal').textContent = money(t.subTotal); qs('#sumDiscount').textContent = '- ' + money(t.discount); qs('#sumTPS').textContent = money(t.tps); qs('#sumTVQ').textContent = money(t.tvq); qs('#sumTotal').textContent = money(t.total); }
     function updateCountersOnCreate(type){ state.businesses = state.businesses.map(b=>{ if(b.id!==state.selectedBusinessId) return b; return type==='quote' ? {...b, nextQuoteNumber:(b.nextQuoteNumber||1)+1} : {...b, nextInvoiceNumber:(b.nextInvoiceNumber||1)+1}; }); }
-    function saveDocument(){ syncEditorFromFields(); const doc = state.editor; if(!doc.clientName.trim()){ alert('Ajoute au moins un client.'); return; } doc.updatedAt = new Date().toISOString(); doc.businessId = state.selectedBusinessId; const exists = state.documents.some(d=>d.id===doc.id); if(exists) state.documents = state.documents.map(d=>d.id===doc.id ? structuredClone(doc) : d); else { state.documents.unshift(structuredClone(doc)); updateCountersOnCreate(doc.type); } const now = new Date().toISOString(); const existingClient = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(existingClient){ Object.assign(existingClient, {contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } else { state.clients.unshift({id:uid(),name:doc.clientName,contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } const map = new Map(state.servicesCatalog.map(s=>[s.name.toLowerCase(),s])); doc.lines.forEach(line=>{ if(!line.name.trim()) return; const key = line.name.toLowerCase(); const old = map.get(key); if(old) Object.assign(old,{description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:(old.usedCount||0)+1}); else map.set(key,{id:uid(),name:line.name,description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:1}); }); state.servicesCatalog = Array.from(map.values()); saveState(); renderAll(); closeEditor(); }
-    function duplicateDocument(id){ const original = state.documents.find(d=>d.id===id); if(!original) return; const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; state.editor = structuredClone(original); state.editor.id = uid(); state.editor.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = type==='quote' ? 'brouillon' : 'en attente'; state.editor.issueDate = today(); state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
+    function saveDocument(){ syncEditorFromFields(); const doc = state.editor; if(!doc.clientName.trim()){ alert('Ajoute au moins un client.'); return; } doc.updatedAt = new Date().toISOString(); doc.businessId = state.selectedBusinessId; const exists = state.documents.some(d=>d.id===doc.id); if(exists) state.documents = state.documents.map(d=>d.id===doc.id ? clone(doc) : d); else { state.documents.unshift(clone(doc)); updateCountersOnCreate(doc.type); } const now = new Date().toISOString(); const existingClient = state.clients.find(c=>c.name.toLowerCase()===doc.clientName.toLowerCase()); if(existingClient){ Object.assign(existingClient, {contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } else { state.clients.unshift({id:uid(),name:doc.clientName,contact:doc.contact,email:doc.email,phone:doc.phone,lastUsedAt:now}); } const map = new Map(state.servicesCatalog.map(s=>[s.name.toLowerCase(),s])); doc.lines.forEach(line=>{ if(!line.name.trim()) return; const key = line.name.toLowerCase(); const old = map.get(key); if(old) Object.assign(old,{description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:(old.usedCount||0)+1}); else map.set(key,{id:uid(),name:line.name,description:line.description,lastPrice:Number(line.unitPrice||0),usedCount:1}); }); state.servicesCatalog = Array.from(map.values()); saveState(); renderAll(); closeEditor(); }
+    function duplicateDocument(id){ const original = state.documents.find(d=>d.id===id); if(!original) return; const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; state.editor = clone(original); state.editor.id = uid(); state.editor.number = `${type==='quote' ? b.quotePrefix : b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = type==='quote' ? 'brouillon' : 'en attente'; state.editor.issueDate = today(); state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
     function convertDocument(id){ const source = typeof id === 'string' ? state.documents.find(d=>d.id===id) : state.editor; if(!source) return; const b = selectedBusiness(); const next = b.nextInvoiceNumber; state.editor = structuredClone(source); state.editor.id = uid(); state.editor.type = 'invoice'; state.editor.number = `${b.invoicePrefix}-${String(next).padStart(3,'0')}`; state.editor.status = 'en attente'; state.editor.expiryDate = ''; state.editor.createdAt = new Date().toISOString(); state.editor.updatedAt = new Date().toISOString(); openEditor(); }
     function deleteDocument(id){ if(!confirm('Supprimer ce document ?')) return; state.documents = state.documents.filter(d=>d.id!==id); saveState(); renderAll(); }
     function exportPDF(doc){
@@ -604,8 +865,8 @@
     function escapeHtml(str=''){ return String(str).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
     function escapeAttr(str=''){ return escapeHtml(str).replace(/`/g,'&#96;'); }
     function renderAll(){ applyTheme(); renderBusinessSelect(); renderTabs(); renderDashboard(); renderDocuments(); renderSettings(); saveState(); }
-    function cloneCurrentEditor(){ if(!state.editor) return; const original = structuredClone(state.editor); const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; original.id = uid(); original.number = `${type==='quote'?b.quotePrefix:b.invoicePrefix}-${String(next).padStart(3,'0')}`; original.status = type==='quote' ? 'brouillon' : 'en attente'; original.issueDate = today(); original.createdAt = new Date().toISOString(); original.updatedAt = new Date().toISOString(); state.editor = original; renderEditor(); }
-    function bindEvents(){ qs('#themeBtn').addEventListener('click', ()=>{ state.theme = state.theme==='dark' ? 'light' : 'dark'; applyTheme(); saveState(); }); qsa('.tab').forEach(btn=>btn.addEventListener('click', ()=>{ state.activeTab = btn.dataset.tab; renderTabs(); })); qs('#businessSelect').addEventListener('change', e=>{ state.selectedBusinessId = e.target.value; renderSettings(); saveState(); }); qs('#newQuoteBtn').addEventListener('click', ()=> createDocument('quote')); qs('#newInvoiceBtn').addEventListener('click', ()=> createDocument('invoice')); qs('#searchInput').addEventListener('input', e=>{ state.filters.search = e.target.value; renderDocuments(); }); qs('#typeFilter').addEventListener('change', e=>{ state.filters.type = e.target.value; renderDocuments(); }); qs('#statusFilter').addEventListener('change', e=>{ state.filters.status = e.target.value; renderDocuments(); }); qs('#dateFilter').addEventListener('change', e=>{ state.filters.date = e.target.value; renderDocuments(); }); qs('#documentsList').addEventListener('click', e=>{ const btn = e.target.closest('[data-action]'); if(!btn) return; const { action, id } = btn.dataset; if(action==='open') openEditor(state.documents.find(d=>d.id===id)); if(action==='duplicate') duplicateDocument(id); if(action==='convert') convertDocument(id); if(action==='pdf') { const d=state.documents.find(x=>x.id===id); if(d) exportPDF(d); } if(action==='delete') deleteDocument(id); }); ['setName','setSubtitle','setAddress','setEmail','setPhone','setQuotePrefix','setInvoicePrefix','setTPS','setTVQ','setNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', ()=>{ const b = selectedBusiness(); b.name = qs('#setName').value; b.subtitle = qs('#setSubtitle').value; b.address = qs('#setAddress').value; b.email = qs('#setEmail').value; b.phone = qs('#setPhone').value; b.quotePrefix = qs('#setQuotePrefix').value.toUpperCase() || 'DEV'; b.invoicePrefix = qs('#setInvoicePrefix').value.toUpperCase() || 'FAC'; b.tpsNumber = qs('#setTPS').value; b.tvqNumber = qs('#setTVQ').value; b.defaultNotes = qs('#setNotes').value; renderBusinessSelect(); saveState(); }); }); qs('#closeEditorBtn').addEventListener('click', closeEditor); qs('#editorModal').addEventListener('click', e=>{ if(e.target.id==='editorModal') closeEditor(); }); qs('#addLineBtn').addEventListener('click', ()=>{ state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }); qs('#saveDocBtn').addEventListener('click', saveDocument); qs('#headSaveBtn').addEventListener('click', saveDocument); qs('#convertBtn').addEventListener('click', ()=> convertDocument()); qs('#headConvertBtn').addEventListener('click', ()=> convertDocument()); qs('#duplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#headDuplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#exportPdfBtn').addEventListener('click', ()=>{ if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }); ['docClientName','docContact','docEmail','docPhone','docProject','docIssueDate','docExpiryDate','docStatus','docDiscountType','docDiscountValue','docTpsRate','docTvqRate','docNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', refreshSummary); qs('#'+id).addEventListener('change', refreshSummary); }); qs('#docClientName').addEventListener('change', ()=>{ const value = qs('#docClientName').value.trim().toLowerCase(); const matched = state.clients.find(c=>c.name.toLowerCase()===value); if(matched){ if(!qs('#docContact').value) qs('#docContact').value = matched.contact || ''; if(!qs('#docEmail').value) qs('#docEmail').value = matched.email || ''; if(!qs('#docPhone').value) qs('#docPhone').value = matched.phone || ''; refreshSummary(); } }); qs('#lineList').addEventListener('input', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; const line = state.editor.lines.find(l=>l.id===input.dataset.line); if(!line) return; const key = input.dataset.key; line[key] = (key==='quantity' || key==='unitPrice') ? Number(input.value||0) : input.value; const totalEl = input.closest('.line-item')?.querySelector('.line-total'); if(totalEl){ totalEl.textContent = `Ligne ${state.editor.lines.findIndex(l=>l.id===line.id)+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}`; } refreshSummary(); }); qs('#lineList').addEventListener('change', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; renderLines(); }); qs('#lineList').addEventListener('click', e=>{ const btn = e.target.closest('[data-remove-line]'); if(!btn) return; const id = btn.dataset.removeLine; state.editor.lines = state.editor.lines.filter(l=>l.id!==id); if(!state.editor.lines.length) state.editor.lines = [emptyLine()]; renderLines(); refreshSummary(); }); qs('#serviceSuggestions').addEventListener('click', e=>{ const btn = e.target.closest('[data-add-service]'); if(!btn) return; const service = state.servicesCatalog.find(s=>s.id===btn.dataset.addService); if(!service) return; state.editor.lines.push({id:uid(),name:service.name,description:service.description||'',quantity:1,unitPrice:Number(service.lastPrice||0)}); renderLines(); refreshSummary(); }); }
+    function cloneCurrentEditor(){ if(!state.editor) return; const original = clone(state.editor); const b = selectedBusiness(); const type = original.type; const next = type==='quote' ? b.nextQuoteNumber : b.nextInvoiceNumber; original.id = uid(); original.number = `${type==='quote'?b.quotePrefix:b.invoicePrefix}-${String(next).padStart(3,'0')}`; original.status = type==='quote' ? 'brouillon' : 'en attente'; original.issueDate = today(); original.createdAt = new Date().toISOString(); original.updatedAt = new Date().toISOString(); state.editor = original; renderEditor(); }
+    function bindEvents(){ qsa('.tab').forEach(btn=>btn.addEventListener('click', ()=>{ state.activeTab = btn.dataset.tab; renderTabs(); })); qs('#businessSelect').addEventListener('change', e=>{ state.selectedBusinessId = e.target.value; renderSettings(); saveState(); }); qs('#newQuoteBtn').addEventListener('click', ()=> createDocument('quote')); qs('#newInvoiceBtn').addEventListener('click', ()=> createDocument('invoice')); qs('#searchInput').addEventListener('input', e=>{ state.filters.search = e.target.value; renderDocuments(); }); qs('#typeFilter').addEventListener('change', e=>{ state.filters.type = e.target.value; renderDocuments(); }); qs('#statusFilter').addEventListener('change', e=>{ state.filters.status = e.target.value; renderDocuments(); }); qs('#dateFilter').addEventListener('change', e=>{ state.filters.date = e.target.value; renderDocuments(); }); qs('#documentsList').addEventListener('click', e=>{ const btn = e.target.closest('[data-action]'); if(!btn) return; const { action, id } = btn.dataset; if(action==='open') openEditor(state.documents.find(d=>d.id===id)); if(action==='duplicate') duplicateDocument(id); if(action==='convert') convertDocument(id); if(action==='pdf') { const d=state.documents.find(x=>x.id===id); if(d) exportPDF(d); } if(action==='delete') deleteDocument(id); }); ['setName','setSubtitle','setAddress','setEmail','setPhone','setQuotePrefix','setInvoicePrefix','setTPS','setTVQ','setNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', ()=>{ const b = selectedBusiness(); b.name = qs('#setName').value; b.subtitle = qs('#setSubtitle').value; b.address = qs('#setAddress').value; b.email = qs('#setEmail').value; b.phone = qs('#setPhone').value; b.quotePrefix = qs('#setQuotePrefix').value.toUpperCase() || 'DEV'; b.invoicePrefix = qs('#setInvoicePrefix').value.toUpperCase() || 'FAC'; b.tpsNumber = qs('#setTPS').value; b.tvqNumber = qs('#setTVQ').value; b.defaultNotes = qs('#setNotes').value; renderBusinessSelect(); saveState(); }); }); qs('#closeEditorBtn').addEventListener('click', closeEditor); qs('#editorModal').addEventListener('click', e=>{ if(e.target.id==='editorModal') closeEditor(); }); qs('#addLineBtn').addEventListener('click', ()=>{ state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }); qs('#saveDocBtn').addEventListener('click', saveDocument); qs('#headSaveBtn').addEventListener('click', saveDocument); qs('#convertBtn').addEventListener('click', ()=> convertDocument()); qs('#headConvertBtn').addEventListener('click', ()=> convertDocument()); qs('#duplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#headDuplicateBtn').addEventListener('click', cloneCurrentEditor); qs('#exportPdfBtn').addEventListener('click', ()=>{ if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }); ['docClientName','docContact','docEmail','docPhone','docProject','docIssueDate','docExpiryDate','docStatus','docDiscountType','docDiscountValue','docTpsRate','docTvqRate','docNotes'].forEach(id=>{ qs('#'+id).addEventListener('input', refreshSummary); qs('#'+id).addEventListener('change', refreshSummary); }); qs('#docClientName').addEventListener('change', ()=>{ const value = qs('#docClientName').value.trim().toLowerCase(); const matched = state.clients.find(c=>c.name.toLowerCase()===value); if(matched){ if(!qs('#docContact').value) qs('#docContact').value = matched.contact || ''; if(!qs('#docEmail').value) qs('#docEmail').value = matched.email || ''; if(!qs('#docPhone').value) qs('#docPhone').value = matched.phone || ''; refreshSummary(); } }); qs('#lineList').addEventListener('input', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; const line = state.editor.lines.find(l=>l.id===input.dataset.line); if(!line) return; const key = input.dataset.key; line[key] = (key==='quantity' || key==='unitPrice') ? Number(input.value||0) : input.value; const totalEl = input.closest('.line-item')?.querySelector('.line-total'); if(totalEl){ totalEl.textContent = `Ligne ${state.editor.lines.findIndex(l=>l.id===line.id)+1} · ${money(Number(line.quantity||0)*Number(line.unitPrice||0))}`; } refreshSummary(); }); qs('#lineList').addEventListener('change', e=>{ const input = e.target.closest('[data-line]'); if(!input) return; renderLines(); }); qs('#lineList').addEventListener('click', e=>{ const btn = e.target.closest('[data-remove-line]'); if(!btn) return; const id = btn.dataset.removeLine; state.editor.lines = state.editor.lines.filter(l=>l.id!==id); if(!state.editor.lines.length) state.editor.lines = [emptyLine()]; renderLines(); refreshSummary(); }); qs('#serviceSuggestions').addEventListener('click', e=>{ const btn = e.target.closest('[data-add-service]'); if(!btn) return; const service = state.servicesCatalog.find(s=>s.id===btn.dataset.addService); if(!service) return; state.editor.lines.push({id:uid(),name:service.name,description:service.description||'',quantity:1,unitPrice:Number(service.lastPrice||0)}); renderLines(); refreshSummary(); }); document.addEventListener('keydown', e=>{ if(e.key==='Escape' && qs('#editorModal').classList.contains('open')) closeEditor(); }); }
     loadState(); bindEvents(); renderAll();
   </script>
 </body>
