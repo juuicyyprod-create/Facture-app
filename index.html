@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Juuicyy Prod — Devis et factures intelligents</title>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Juuicyy Prod — Devis et factures intelligents</title>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;700;800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
     :root{
       --bg:#f3f6fb;
       --bg2:#e8edf7;
@@ -388,206 +389,417 @@
     .line-grid{grid-template-columns:1fr !important}
   }
 </style>
+
+<style id="nova-da-screen-match">
+  :root{
+    --screen-bg:#040812;
+    --screen-panel:#0b1019;
+    --screen-panel-2:#121824;
+    --screen-border:rgba(255,255,255,.08);
+    --screen-border-soft:rgba(255,255,255,.05);
+    --screen-text:#eef2f7;
+    --screen-muted:#94a1b2;
+    --screen-accent:#ff7a14;
+    --screen-accent-soft:rgba(255,122,20,.18);
+    --screen-shadow:0 14px 40px rgba(0,0,0,.38);
+  }
+  html,body{
+    background:var(--screen-bg) !important;
+  }
+  body::before{
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,90,24,.15) 0%, transparent 30%),
+      radial-gradient(circle at 88% 100%, rgba(8,77,255,.10) 0%, transparent 28%),
+      radial-gradient(circle at 50% 50%, rgba(255,122,20,.03) 0%, transparent 48%) !important;
+  }
+  .app{
+    max-width:1060px !important;
+    padding:18px 18px 26px !important;
+  }
+  .glass,
+  .header,
+  .tabs,
+  .stat,
+  .mini,
+  .client-row,
+  .doc,
+  .line-item,
+  .helper,
+  .card{
+    box-shadow:var(--screen-shadow) !important;
+  }
+  .glass{
+    background:linear-gradient(180deg, rgba(10,14,22,.96), rgba(7,11,18,.96)) !important;
+    border:1px solid var(--screen-border-soft) !important;
+  }
+  .header{
+    max-width:100%;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    align-items:center !important;
+    padding:18px 18px 16px !important;
+    border-radius:24px !important;
+  }
+  .brand-kicker{
+    font-size:.72rem !important;
+    letter-spacing:.14em !important;
+    margin-bottom:8px !important;
+  }
+  .brand h1{
+    font-size:clamp(2rem,3.2vw,3.25rem) !important;
+    line-height:.95 !important;
+  }
+  .brand p{
+    margin-top:4px !important;
+    font-size:.92rem !important;
+    color:#9aa7b8 !important;
+  }
+  .actions{
+    gap:8px !important;
+    align-items:center !important;
+  }
+  #businessSelect{
+    min-width:290px;
+    height:42px;
+    background:rgba(255,255,255,.05) !important;
+    border-color:rgba(255,255,255,.09) !important;
+  }
+  .btn{
+    min-height:42px;
+    border-radius:14px !important;
+    font-weight:700 !important;
+  }
+  .btn.primary{
+    background:linear-gradient(180deg, #ff8a24, #ff7412) !important;
+    box-shadow:0 8px 20px rgba(255,122,20,.34), inset 0 1px 0 rgba(255,255,255,.15) !important;
+  }
+  .btn.secondary{
+    background:rgba(255,255,255,.08) !important;
+  }
+  .tabs{
+    margin-top:10px !important;
+    padding:4px !important;
+    border-radius:16px !important;
+    background:rgba(4,8,18,.82) !important;
+    border:1px solid rgba(255,255,255,.07) !important;
+  }
+  .tab{
+    min-height:38px;
+    border-radius:12px !important;
+    font-size:.84rem !important;
+    color:#aab3c0 !important;
+  }
+  .tab.active{
+    background:linear-gradient(180deg, #ff8a24, #ff7412) !important;
+    color:#fff !important;
+    box-shadow:none !important;
+  }
+  .page{
+    margin-top:16px !important;
+  }
+  .split{
+    grid-template-columns:1.12fr .88fr !important;
+  }
+  .card,
+  .mini,
+  .client-row,
+  .doc,
+  .line-item,
+  .helper{
+    background:linear-gradient(180deg, rgba(12,18,29,.94), rgba(9,13,22,.96)) !important;
+    border:1px solid rgba(255,255,255,.06) !important;
+  }
+  .card{
+    padding:16px !important;
+    border-radius:22px !important;
+  }
+  .mini{
+    padding:16px !important;
+    border-radius:18px !important;
+  }
+  .section-title{
+    font-size:1.45rem !important;
+    line-height:1.05 !important;
+  }
+  #page-dashboard .section-title,
+  #page-dashboard .card .section-title{
+    font-size:1.25rem !important;
+  }
+  .section-sub,
+  .meta,
+  .footer,
+  .field label,
+  .helper,
+  .stat .label,
+  .brand p{
+    color:var(--screen-muted) !important;
+  }
+  .stat .value,
+  .big,
+  #sumTotal,
+  #sumSubTotal,
+  #sumTPS,
+  #sumTVQ,
+  #sumDiscount{
+    color:var(--screen-text) !important;
+  }
+  .quick-grid{
+    gap:12px !important;
+  }
+  .mini .big{
+    font-size:2rem !important;
+    line-height:1 !important;
+  }
+  .footer{
+    text-align:center !important;
+    padding-top:14px !important;
+    font-size:.76rem !important;
+  }
+  .badge{
+    border-radius:999px !important;
+  }
+  .doc-title,
+  .modal-head > div:first-child > div:first-child,
+  #editorTitle{
+    color:var(--screen-text) !important;
+  }
+  .modal{
+    background:rgba(2,6,12,.74) !important;
+  }
+  .modal-panel{
+    background:linear-gradient(180deg, rgba(10,14,22,.99), rgba(8,11,18,.99)) !important;
+  }
+  .editor-side{
+    background:linear-gradient(180deg, rgba(15,20,32,.82), rgba(10,14,22,.82)) !important;
+  }
+  .totals .row.total{
+    color:var(--screen-text) !important;
+  }
+  @media (max-width: 920px){
+    .split{
+      grid-template-columns:1fr !important;
+    }
+    #businessSelect{
+      min-width:220px;
+    }
+  }
+  @media (max-width: 720px){
+    .app{
+      padding:16px 14px 24px !important;
+    }
+    .header{
+      padding:16px !important;
+      border-radius:22px !important;
+    }
+    .brand h1{
+      font-size:2.1rem !important;
+    }
+    .actions{
+      width:100%;
+      display:grid !important;
+      grid-template-columns:1fr 1fr !important;
+    }
+    #businessSelect{
+      min-width:0;
+      grid-column:1 / -1;
+    }
+    .tabs{
+      position:sticky;
+      top:8px;
+    }
+    .tab{
+      min-height:40px;
+      font-size:.8rem !important;
+    }
+    .card{
+      padding:14px !important;
+    }
+  }
+</style>
+
 </head>
 <body>
-  <div class="app">
-    <header class="glass header">
-      <div class="brand">
-        <div class="brand-kicker"><span class="brand-dot"></span>Juuicyy Prod</div>
-        <h1>Devis &amp; factures</h1>
-        <p>Création rapide, calcul automatique et export PDF dans la DA Juuicyy Prod.</p>
-      </div>
-      <div class="actions">
-        <select id="businessSelect" class="select"></select>
-        <button class="btn primary" id="newQuoteBtn">Nouveau devis</button>
-        <button class="btn secondary" id="newInvoiceBtn">Nouvelle facture</button>
-        <button class="btn ghost icon-btn" id="themeBtn" title="Mode sombre">🌙</button>
-      </div>
-    </header>
-
-    <nav class="glass tabs">
-      <button class="tab active" data-tab="dashboard">Dashboard</button>
-      <button class="tab" data-tab="documents">Documents</button>
-      <button class="tab" data-tab="settings">Réglages</button>
-    </nav>
-
-    <section class="page active" id="page-dashboard">
-      <div class="grid stats" id="statsGrid"></div>
-      <div class="split" style="margin-top:14px">
-        <article class="glass card">
-          <h3 class="section-title">Vue rapide</h3>
-          <p class="section-sub">Semaine et mois en un coup d’œil</p>
-          <div class="quick-grid">
-            <div class="mini">
-              <div class="section-sub">Revenu 7 jours</div>
-              <div class="big" id="weekRevenue">0 $</div>
-            </div>
-            <div class="mini">
-              <div class="section-sub">Revenu 30 jours</div>
-              <div class="big" id="monthRevenue">0 $</div>
-            </div>
-          </div>
-        </article>
-        <article class="glass card">
-          <h3 class="section-title">Clients récents</h3>
-          <p class="section-sub">Auto-complétion rapide</p>
-          <div class="clients-list" id="recentClients"></div>
-        </article>
-      </div>
-    </section>
-
-    <section class="page" id="page-documents">
-      <article class="glass card">
-        <div class="filters">
-          <input id="searchInput" class="input" placeholder="Rechercher client, projet, numéro..." />
-          <select id="typeFilter" class="select">
-            <option value="all">Tous les types</option>
-            <option value="quote">Devis</option>
-            <option value="invoice">Factures</option>
-          </select>
-          <select id="statusFilter" class="select">
-            <option value="all">Tous les statuts</option>
-            <option value="brouillon">Brouillon</option>
-            <option value="accepté">Accepté</option>
-            <option value="refusé">Refusé</option>
-            <option value="annulé">Annulé</option>
-            <option value="en attente">En attente</option>
-            <option value="payé">Payé</option>
-          </select>
-          <select id="dateFilter" class="select">
-            <option value="all">Toutes dates</option>
-            <option value="week">7 jours</option>
-            <option value="month">30 jours</option>
-          </select>
-        </div>
-      </article>
-      <div class="documents" id="documentsList" style="margin-top:14px"></div>
-    </section>
-
-    <section class="page" id="page-settings">
-      <article class="glass card">
-        <h3 class="section-title">Business actif</h3>
-        <p class="section-sub">Infos utilisées pour les PDF et la numérotation</p>
-        <div class="settings-grid" style="margin-top:14px">
-          <div class="field"><label>Nom</label><input id="setName" class="input"></div>
-          <div class="field"><label>Sous-titre</label><input id="setSubtitle" class="input"></div>
-          <div class="field full"><label>Adresse</label><input id="setAddress" class="input"></div>
-          <div class="field"><label>Email</label><input id="setEmail" class="input"></div>
-          <div class="field"><label>Téléphone</label><input id="setPhone" class="input"></div>
-          <div class="field"><label>Préfixe devis</label><input id="setQuotePrefix" class="input"></div>
-          <div class="field"><label>Préfixe facture</label><input id="setInvoicePrefix" class="input"></div>
-          <div class="field"><label>TPS #</label><input id="setTPS" class="input"></div>
-          <div class="field"><label>TVQ #</label><input id="setTVQ" class="input"></div>
-          <div class="field full"><label>Notes par défaut</label><textarea id="setNotes" class="textarea"></textarea></div>
-        </div>
-      </article>
-    </section>
-
-    <footer class="footer">© Juuicyy Prod — Tous droits réservés</footer>
-  </div>
-
-  <div class="modal" id="editorModal">
-    <div class="modal-panel">
-      <div class="modal-head">
-        <div>
-          <div style="font-weight:800;font-size:1.1rem" id="editorTitle">Édition du devis</div>
-          <div style="color:var(--muted);font-size:.92rem" id="editorSubtitle">DEV-001</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-          <button class="btn" id="headDuplicateBtn">Dupliquer</button>
-          <button class="btn secondary" id="headConvertBtn">Convertir en facture</button>
-          <button class="btn primary" id="headSaveBtn">Enregistrer</button>
-          <button class="btn ghost" id="closeEditorBtn">Fermer</button>
-        </div>
-      </div>
-      <div class="editor">
-        <div class="editor-main">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-            <div>
-              <div class="section-title">Informations du document</div>
-              <div class="section-sub">Client, projet, statut et dates</div>
-            </div>
-            <div class="badge">Création rapide optimisée mobile</div>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label>Client</label>
-              <input id="docClientName" class="input" list="clientsDatalist" placeholder="Nom du client">
-              <datalist id="clientsDatalist"></datalist>
-            </div>
-            <div class="field"><label>Contact</label><input id="docContact" class="input"></div>
-            <div class="field"><label>Email</label><input id="docEmail" class="input"></div>
-            <div class="field"><label>Téléphone</label><input id="docPhone" class="input"></div>
-            <div class="field"><label>Projet</label><input id="docProject" class="input"></div>
-            <div class="field"><label>Statut</label><select id="docStatus" class="select"></select></div>
-            <div class="field"><label>Date</label><input id="docIssueDate" type="date" class="input"></div>
-            <div class="field" id="expiryField"><label>Expiration</label><input id="docExpiryDate" type="date" class="input"></div>
-          </div>
-
-          <div style="height:1px;background:var(--line);margin:18px 0"></div>
-
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-            <div>
-              <div class="section-title">Services / produits</div>
-              <div class="section-sub">Lignes dynamiques avec calcul automatique</div>
-            </div>
-            <button class="btn secondary" id="addLineBtn">Ajouter une ligne</button>
-          </div>
-
-          <div class="suggestions" id="serviceSuggestions" style="margin-bottom:12px"></div>
-          <div class="line-list" id="lineList"></div>
-
-          <div style="height:1px;background:var(--line);margin:18px 0"></div>
-
-          <div class="form-grid">
-            <div class="field"><label>Type de remise</label>
-              <select id="docDiscountType" class="select">
-                <option value="percent">Pourcentage</option>
-                <option value="fixed">Montant fixe</option>
-              </select>
-            </div>
-            <div class="field"><label>Valeur de remise</label><input id="docDiscountValue" type="number" min="0" step="0.01" class="input"></div>
-            <div class="field"><label>TPS %</label><input id="docTpsRate" type="number" min="0" step="0.001" class="input"></div>
-            <div class="field"><label>TVQ %</label><input id="docTvqRate" type="number" min="0" step="0.001" class="input"></div>
-            <div class="field full"><label>Notes</label><textarea id="docNotes" class="textarea"></textarea></div>
-          </div>
-        </div>
-
-        <aside class="editor-side">
-          <div class="glass card" style="background:var(--panel-solid);margin-bottom:12px">
-            <div class="section-title">Résumé financier</div>
-            <div class="section-sub" style="margin-bottom:14px">Calcul en temps réel, sans erreur</div>
-            <div class="totals">
-              <div class="row"><span>Sous-total</span><strong id="sumSubTotal">0 $</strong></div>
-              <div class="row"><span>Remise</span><strong id="sumDiscount">0 $</strong></div>
-              <div class="row"><span>TPS</span><strong id="sumTPS">0 $</strong></div>
-              <div class="row"><span>TVQ</span><strong id="sumTVQ">0 $</strong></div>
-              <div class="row total"><span>Total</span><span id="sumTotal">0 $</span></div>
-            </div>
-          </div>
-
-          <div class="glass card sticky-mobile" style="background:var(--panel-solid);margin-bottom:12px">
-            <div class="section-title">Raccourcis</div>
-            <div class="section-sub" style="margin:4px 0 14px">Les actions principales restent visibles</div>
-            <div style="display:grid;gap:8px">
-              <button class="btn primary" id="saveDocBtn">Enregistrer</button>
-              <button class="btn" id="exportPdfBtn">Export PDF</button>
-              <button class="btn secondary" id="convertBtn">Convertir en facture</button>
-              <button class="btn ghost" id="duplicateBtn">Dupliquer</button>
-            </div>
-          </div>
-
-          <div class="glass card" style="background:var(--panel-solid)">
-            <div class="section-title">Infos utiles</div>
-            <div class="helper" style="margin-top:12px">Sauvegarde locale automatique · Historique persistant · HTML autonome · Mobile friendly</div>
-          </div>
-        </aside>
-      </div>
-    </div>
-  </div>
-
-  <script>
+<div class="app">
+<header class="glass header">
+<div class="brand">
+<div class="brand-kicker"><span class="brand-dot"></span>Juuicyy Prod</div>
+<h1>Devis &amp; factures</h1>
+<p>Création rapide, calcul automatique et export PDF dans la DA Juuicyy Prod.</p>
+</div>
+<div class="actions">
+<select class="select" id="businessSelect"></select>
+<button class="btn primary" id="newQuoteBtn">Nouveau devis</button>
+<button class="btn secondary" id="newInvoiceBtn">Nouvelle facture</button>
+<button class="btn ghost icon-btn" id="themeBtn" title="Mode sombre">🌙</button>
+</div>
+</header>
+<nav class="glass tabs">
+<button class="tab active" data-tab="dashboard">Dashboard</button>
+<button class="tab" data-tab="documents">Documents</button>
+<button class="tab" data-tab="settings">Réglages</button>
+</nav>
+<section class="page active" id="page-dashboard">
+<div class="grid stats" id="statsGrid"></div>
+<div class="split" style="margin-top:14px">
+<article class="glass card">
+<h3 class="section-title">Vue rapide</h3>
+<p class="section-sub">Semaine et mois en un coup d’œil</p>
+<div class="quick-grid">
+<div class="mini">
+<div class="section-sub">Revenu 7 jours</div>
+<div class="big" id="weekRevenue">0 $</div>
+</div>
+<div class="mini">
+<div class="section-sub">Revenu 30 jours</div>
+<div class="big" id="monthRevenue">0 $</div>
+</div>
+</div>
+</article>
+<article class="glass card">
+<h3 class="section-title">Clients récents</h3>
+<p class="section-sub">Auto-complétion rapide</p>
+<div class="clients-list" id="recentClients"></div>
+</article>
+</div>
+</section>
+<section class="page" id="page-documents">
+<article class="glass card">
+<div class="filters">
+<input class="input" id="searchInput" placeholder="Rechercher client, projet, numéro..."/>
+<select class="select" id="typeFilter">
+<option value="all">Tous les types</option>
+<option value="quote">Devis</option>
+<option value="invoice">Factures</option>
+</select>
+<select class="select" id="statusFilter">
+<option value="all">Tous les statuts</option>
+<option value="brouillon">Brouillon</option>
+<option value="accepté">Accepté</option>
+<option value="refusé">Refusé</option>
+<option value="annulé">Annulé</option>
+<option value="en attente">En attente</option>
+<option value="payé">Payé</option>
+</select>
+<select class="select" id="dateFilter">
+<option value="all">Toutes dates</option>
+<option value="week">7 jours</option>
+<option value="month">30 jours</option>
+</select>
+</div>
+</article>
+<div class="documents" id="documentsList" style="margin-top:14px"></div>
+</section>
+<section class="page" id="page-settings">
+<article class="glass card">
+<h3 class="section-title">Business actif</h3>
+<p class="section-sub">Infos utilisées pour les PDF et la numérotation</p>
+<div class="settings-grid" style="margin-top:14px">
+<div class="field"><label>Nom</label><input class="input" id="setName"/></div>
+<div class="field"><label>Sous-titre</label><input class="input" id="setSubtitle"/></div>
+<div class="field full"><label>Adresse</label><input class="input" id="setAddress"/></div>
+<div class="field"><label>Email</label><input class="input" id="setEmail"/></div>
+<div class="field"><label>Téléphone</label><input class="input" id="setPhone"/></div>
+<div class="field"><label>Préfixe devis</label><input class="input" id="setQuotePrefix"/></div>
+<div class="field"><label>Préfixe facture</label><input class="input" id="setInvoicePrefix"/></div>
+<div class="field"><label>TPS #</label><input class="input" id="setTPS"/></div>
+<div class="field"><label>TVQ #</label><input class="input" id="setTVQ"/></div>
+<div class="field full"><label>Notes par défaut</label><textarea class="textarea" id="setNotes"></textarea></div>
+</div>
+</article>
+</section>
+<footer class="footer">© Juuicyy Prod — Tous droits réservés</footer>
+</div>
+<div class="modal" id="editorModal">
+<div class="modal-panel">
+<div class="modal-head">
+<div>
+<div id="editorTitle" style="font-weight:800;font-size:1.1rem">Édition du devis</div>
+<div id="editorSubtitle" style="color:var(--muted);font-size:.92rem">DEV-001</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+<button class="btn" id="headDuplicateBtn">Dupliquer</button>
+<button class="btn secondary" id="headConvertBtn">Convertir en facture</button>
+<button class="btn primary" id="headSaveBtn">Enregistrer</button>
+<button class="btn ghost" id="closeEditorBtn">Fermer</button>
+</div>
+</div>
+<div class="editor">
+<div class="editor-main">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+<div>
+<div class="section-title">Informations du document</div>
+<div class="section-sub">Client, projet, statut et dates</div>
+</div>
+<div class="badge">Création rapide optimisée mobile</div>
+</div>
+<div class="form-grid">
+<div class="field">
+<label>Client</label>
+<input class="input" id="docClientName" list="clientsDatalist" placeholder="Nom du client"/>
+<datalist id="clientsDatalist"></datalist>
+</div>
+<div class="field"><label>Contact</label><input class="input" id="docContact"/></div>
+<div class="field"><label>Email</label><input class="input" id="docEmail"/></div>
+<div class="field"><label>Téléphone</label><input class="input" id="docPhone"/></div>
+<div class="field"><label>Projet</label><input class="input" id="docProject"/></div>
+<div class="field"><label>Statut</label><select class="select" id="docStatus"></select></div>
+<div class="field"><label>Date</label><input class="input" id="docIssueDate" type="date"/></div>
+<div class="field" id="expiryField"><label>Expiration</label><input class="input" id="docExpiryDate" type="date"/></div>
+</div>
+<div style="height:1px;background:var(--line);margin:18px 0"></div>
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+<div>
+<div class="section-title">Services / produits</div>
+<div class="section-sub">Lignes dynamiques avec calcul automatique</div>
+</div>
+<button class="btn secondary" id="addLineBtn">Ajouter une ligne</button>
+</div>
+<div class="suggestions" id="serviceSuggestions" style="margin-bottom:12px"></div>
+<div class="line-list" id="lineList"></div>
+<div style="height:1px;background:var(--line);margin:18px 0"></div>
+<div class="form-grid">
+<div class="field"><label>Type de remise</label>
+<select class="select" id="docDiscountType">
+<option value="percent">Pourcentage</option>
+<option value="fixed">Montant fixe</option>
+</select>
+</div>
+<div class="field"><label>Valeur de remise</label><input class="input" id="docDiscountValue" min="0" step="0.01" type="number"/></div>
+<div class="field"><label>TPS %</label><input class="input" id="docTpsRate" min="0" step="0.001" type="number"/></div>
+<div class="field"><label>TVQ %</label><input class="input" id="docTvqRate" min="0" step="0.001" type="number"/></div>
+<div class="field full"><label>Notes</label><textarea class="textarea" id="docNotes"></textarea></div>
+</div>
+</div>
+<aside class="editor-side">
+<div class="glass card" style="background:var(--panel-solid);margin-bottom:12px">
+<div class="section-title">Résumé financier</div>
+<div class="section-sub" style="margin-bottom:14px">Calcul en temps réel, sans erreur</div>
+<div class="totals">
+<div class="row"><span>Sous-total</span><strong id="sumSubTotal">0 $</strong></div>
+<div class="row"><span>Remise</span><strong id="sumDiscount">0 $</strong></div>
+<div class="row"><span>TPS</span><strong id="sumTPS">0 $</strong></div>
+<div class="row"><span>TVQ</span><strong id="sumTVQ">0 $</strong></div>
+<div class="row total"><span>Total</span><span id="sumTotal">0 $</span></div>
+</div>
+</div>
+<div class="glass card sticky-mobile" style="background:var(--panel-solid);margin-bottom:12px">
+<div class="section-title">Raccourcis</div>
+<div class="section-sub" style="margin:4px 0 14px">Les actions principales restent visibles</div>
+<div style="display:grid;gap:8px">
+<button class="btn primary" id="saveDocBtn">Enregistrer</button>
+<button class="btn" id="exportPdfBtn">Export PDF</button>
+<button class="btn secondary" id="convertBtn">Convertir en facture</button>
+<button class="btn ghost" id="duplicateBtn">Dupliquer</button>
+</div>
+</div>
+<div class="glass card" style="background:var(--panel-solid)">
+<div class="section-title">Infos utiles</div>
+<div class="helper" style="margin-top:12px">Sauvegarde locale automatique · Historique persistant · HTML autonome · Mobile friendly</div>
+</div>
+</aside>
+</div>
+</div>
+</div>
+<script>
     const STORAGE_KEY = 'juuicyy_prod_quote_invoice_html_v3';
     const state = {
       theme: 'dark',
@@ -742,7 +954,7 @@
       }
 
       const safeDoc = { ...doc, lines: validLines(doc.lines) };
-      if (!safeDoc.lines.length) { alert('Ajoute au moins une ligne valide avant l'export PDF.'); return; }
+      if (!safeDoc.lines.length) { alert("Ajoute au moins une ligne valide avant l'export PDF."); return; }
       const b = state.businesses.find(x=>x.id===safeDoc.businessId) || selectedBusiness();
       const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
       const t = totals(safeDoc);
@@ -934,179 +1146,6 @@
     window.visualViewport?.addEventListener('resize', setViewportUnit, { passive:true });
     renderAll();
   </script>
-
-<script id="nova-hotfix">
-(function(){
-  const $ = (s,p=document)=>p.querySelector(s);
-
-  function cloneButton(id){
-    const el = document.getElementById(id);
-    if(!el) return null;
-    const clone = el.cloneNode(true);
-    el.replaceWith(clone);
-    return clone;
-  }
-
-  function ensureViewportUnit(){
-    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
-    document.documentElement.style.setProperty('--app-vh', `${vh}px`);
-  }
-
-  function ensurePrefixes(){
-    if (typeof sanitizePrefix !== 'function' || typeof selectedBusiness !== 'function') return;
-    const b = selectedBusiness();
-    if (!b) return;
-    b.quotePrefix = sanitizePrefix(b.quotePrefix, 'DEV');
-    b.invoicePrefix = sanitizePrefix(b.invoicePrefix, 'FAC');
-  }
-
-  if (typeof openEditor === 'function') {
-    const _openEditor = openEditor;
-    openEditor = function(doc){
-      ensureViewportUnit();
-      ensurePrefixes();
-      return _openEditor(doc);
-    };
-  }
-
-  if (typeof closeEditor === 'function') {
-    const _closeEditor = closeEditor;
-    closeEditor = function(){
-      const out = _closeEditor();
-      ensureViewportUnit();
-      return out;
-    };
-  }
-
-  if (typeof createDocument === 'function') {
-    createDocument = function(type){
-      ensurePrefixes();
-      const b = selectedBusiness();
-      const doc = emptyDoc(type);
-      const next = type === 'quote' ? b.nextQuoteNumber : b.nextInvoiceNumber;
-      const prefix = type === 'quote' ? sanitizePrefix(b.quotePrefix, 'DEV') : sanitizePrefix(b.invoicePrefix, 'FAC');
-      doc.number = `${prefix}-${String(next).padStart(3,'0')}`;
-      state.editor = doc;
-      openEditor();
-      refreshSummary();
-    };
-  }
-
-  if (typeof duplicateDocument === 'function') {
-    duplicateDocument = function(id){
-      const original = state.documents.find(d => d.id === id);
-      if(!original) return;
-      ensurePrefixes();
-      const b = selectedBusiness();
-      const type = original.type;
-      const next = type === 'quote' ? b.nextQuoteNumber : b.nextInvoiceNumber;
-      state.editor = clone(original);
-      state.editor.id = uid();
-      const prefix = type === 'quote' ? sanitizePrefix(b.quotePrefix, 'DEV') : sanitizePrefix(b.invoicePrefix, 'FAC');
-      state.editor.number = `${prefix}-${String(next).padStart(3,'0')}`;
-      state.editor.status = type === 'quote' ? 'brouillon' : 'en attente';
-      state.editor.issueDate = today();
-      state.editor.createdAt = new Date().toISOString();
-      state.editor.updatedAt = new Date().toISOString();
-      openEditor();
-      refreshSummary();
-    };
-  }
-
-  if (typeof convertDocument === 'function') {
-    convertDocument = function(id){
-      const source = typeof id === 'string' ? state.documents.find(d => d.id === id) : state.editor;
-      if(!source) return;
-      ensurePrefixes();
-      const b = selectedBusiness();
-      const next = b.nextInvoiceNumber;
-      state.editor = clone(source);
-      state.editor.id = uid();
-      state.editor.type = 'invoice';
-      state.editor.number = `${sanitizePrefix(b.invoicePrefix, 'FAC')}-${String(next).padStart(3,'0')}`;
-      state.editor.status = 'en attente';
-      state.editor.expiryDate = '';
-      state.editor.createdAt = new Date().toISOString();
-      state.editor.updatedAt = new Date().toISOString();
-      openEditor();
-      refreshSummary();
-    };
-  }
-
-  if (typeof saveDocument === 'function') {
-    const _saveDocument = saveDocument;
-    saveDocument = function(){
-      try{
-        syncEditorFromFields();
-        state.editor.lines = validLines(state.editor.lines);
-      }catch(e){}
-      return _saveDocument();
-    };
-  }
-
-  function rebindTopButtons(){
-    const quoteBtn = cloneButton('newQuoteBtn');
-    const invoiceBtn = cloneButton('newInvoiceBtn');
-    if (quoteBtn) quoteBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); createDocument('quote'); });
-    if (invoiceBtn) invoiceBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); createDocument('invoice'); });
-  }
-
-  function rebindEditorButtons(){
-    const map = [
-      ['closeEditorBtn', () => closeEditor()],
-      ['headSaveBtn', () => saveDocument()],
-      ['saveDocBtn', () => saveDocument()],
-      ['duplicateBtn', () => cloneCurrentEditor()],
-      ['headDuplicateBtn', () => cloneCurrentEditor()],
-      ['convertBtn', () => convertDocument()],
-      ['headConvertBtn', () => convertDocument()],
-      ['addLineBtn', () => { state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }],
-      ['exportPdfBtn', () => { if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }],
-    ];
-    for (const [id, handler] of map){
-      const btn = cloneButton(id);
-      if(btn) btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); handler(); });
-    }
-  }
-
-  function installDocumentDelegation(){
-    const list = document.getElementById('documentsList');
-    if(!list) return;
-    const fresh = list.cloneNode(true);
-    list.replaceWith(fresh);
-    fresh.addEventListener('click', function(e){
-      const btn = e.target.closest('[data-action]');
-      if(!btn) return;
-      e.preventDefault();
-      const { action, id } = btn.dataset;
-      if(action==='open') openEditor(state.documents.find(d=>d.id===id));
-      if(action==='duplicate') duplicateDocument(id);
-      if(action==='convert') convertDocument(id);
-      if(action==='pdf') {
-        const d = state.documents.find(x=>x.id===id);
-        if(d) exportPDF(d);
-      }
-      if(action==='delete') deleteDocument(id);
-    });
-  }
-
-  function initHotfix(){
-    ensureViewportUnit();
-    ensurePrefixes();
-    rebindTopButtons();
-    rebindEditorButtons();
-    installDocumentDelegation();
-    window.addEventListener('resize', ensureViewportUnit, { passive:true });
-    window.visualViewport && window.visualViewport.addEventListener('resize', ensureViewportUnit, { passive:true });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHotfix, { once:true });
-  } else {
-    initHotfix();
-  }
-})();
-</script>
 
 </body>
 </html>
