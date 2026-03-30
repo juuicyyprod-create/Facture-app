@@ -934,5 +934,179 @@
     window.visualViewport?.addEventListener('resize', setViewportUnit, { passive:true });
     renderAll();
   </script>
+
+<script id="nova-hotfix">
+(function(){
+  const $ = (s,p=document)=>p.querySelector(s);
+
+  function cloneButton(id){
+    const el = document.getElementById(id);
+    if(!el) return null;
+    const clone = el.cloneNode(true);
+    el.replaceWith(clone);
+    return clone;
+  }
+
+  function ensureViewportUnit(){
+    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+    document.documentElement.style.setProperty('--app-vh', `${vh}px`);
+  }
+
+  function ensurePrefixes(){
+    if (typeof sanitizePrefix !== 'function' || typeof selectedBusiness !== 'function') return;
+    const b = selectedBusiness();
+    if (!b) return;
+    b.quotePrefix = sanitizePrefix(b.quotePrefix, 'DEV');
+    b.invoicePrefix = sanitizePrefix(b.invoicePrefix, 'FAC');
+  }
+
+  if (typeof openEditor === 'function') {
+    const _openEditor = openEditor;
+    openEditor = function(doc){
+      ensureViewportUnit();
+      ensurePrefixes();
+      return _openEditor(doc);
+    };
+  }
+
+  if (typeof closeEditor === 'function') {
+    const _closeEditor = closeEditor;
+    closeEditor = function(){
+      const out = _closeEditor();
+      ensureViewportUnit();
+      return out;
+    };
+  }
+
+  if (typeof createDocument === 'function') {
+    createDocument = function(type){
+      ensurePrefixes();
+      const b = selectedBusiness();
+      const doc = emptyDoc(type);
+      const next = type === 'quote' ? b.nextQuoteNumber : b.nextInvoiceNumber;
+      const prefix = type === 'quote' ? sanitizePrefix(b.quotePrefix, 'DEV') : sanitizePrefix(b.invoicePrefix, 'FAC');
+      doc.number = `${prefix}-${String(next).padStart(3,'0')}`;
+      state.editor = doc;
+      openEditor();
+      refreshSummary();
+    };
+  }
+
+  if (typeof duplicateDocument === 'function') {
+    duplicateDocument = function(id){
+      const original = state.documents.find(d => d.id === id);
+      if(!original) return;
+      ensurePrefixes();
+      const b = selectedBusiness();
+      const type = original.type;
+      const next = type === 'quote' ? b.nextQuoteNumber : b.nextInvoiceNumber;
+      state.editor = clone(original);
+      state.editor.id = uid();
+      const prefix = type === 'quote' ? sanitizePrefix(b.quotePrefix, 'DEV') : sanitizePrefix(b.invoicePrefix, 'FAC');
+      state.editor.number = `${prefix}-${String(next).padStart(3,'0')}`;
+      state.editor.status = type === 'quote' ? 'brouillon' : 'en attente';
+      state.editor.issueDate = today();
+      state.editor.createdAt = new Date().toISOString();
+      state.editor.updatedAt = new Date().toISOString();
+      openEditor();
+      refreshSummary();
+    };
+  }
+
+  if (typeof convertDocument === 'function') {
+    convertDocument = function(id){
+      const source = typeof id === 'string' ? state.documents.find(d => d.id === id) : state.editor;
+      if(!source) return;
+      ensurePrefixes();
+      const b = selectedBusiness();
+      const next = b.nextInvoiceNumber;
+      state.editor = clone(source);
+      state.editor.id = uid();
+      state.editor.type = 'invoice';
+      state.editor.number = `${sanitizePrefix(b.invoicePrefix, 'FAC')}-${String(next).padStart(3,'0')}`;
+      state.editor.status = 'en attente';
+      state.editor.expiryDate = '';
+      state.editor.createdAt = new Date().toISOString();
+      state.editor.updatedAt = new Date().toISOString();
+      openEditor();
+      refreshSummary();
+    };
+  }
+
+  if (typeof saveDocument === 'function') {
+    const _saveDocument = saveDocument;
+    saveDocument = function(){
+      try{
+        syncEditorFromFields();
+        state.editor.lines = validLines(state.editor.lines);
+      }catch(e){}
+      return _saveDocument();
+    };
+  }
+
+  function rebindTopButtons(){
+    const quoteBtn = cloneButton('newQuoteBtn');
+    const invoiceBtn = cloneButton('newInvoiceBtn');
+    if (quoteBtn) quoteBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); createDocument('quote'); });
+    if (invoiceBtn) invoiceBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); createDocument('invoice'); });
+  }
+
+  function rebindEditorButtons(){
+    const map = [
+      ['closeEditorBtn', () => closeEditor()],
+      ['headSaveBtn', () => saveDocument()],
+      ['saveDocBtn', () => saveDocument()],
+      ['duplicateBtn', () => cloneCurrentEditor()],
+      ['headDuplicateBtn', () => cloneCurrentEditor()],
+      ['convertBtn', () => convertDocument()],
+      ['headConvertBtn', () => convertDocument()],
+      ['addLineBtn', () => { state.editor.lines.push(emptyLine()); renderLines(); refreshSummary(); }],
+      ['exportPdfBtn', () => { if(state.editor){ syncEditorFromFields(); exportPDF(state.editor); } }],
+    ];
+    for (const [id, handler] of map){
+      const btn = cloneButton(id);
+      if(btn) btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); handler(); });
+    }
+  }
+
+  function installDocumentDelegation(){
+    const list = document.getElementById('documentsList');
+    if(!list) return;
+    const fresh = list.cloneNode(true);
+    list.replaceWith(fresh);
+    fresh.addEventListener('click', function(e){
+      const btn = e.target.closest('[data-action]');
+      if(!btn) return;
+      e.preventDefault();
+      const { action, id } = btn.dataset;
+      if(action==='open') openEditor(state.documents.find(d=>d.id===id));
+      if(action==='duplicate') duplicateDocument(id);
+      if(action==='convert') convertDocument(id);
+      if(action==='pdf') {
+        const d = state.documents.find(x=>x.id===id);
+        if(d) exportPDF(d);
+      }
+      if(action==='delete') deleteDocument(id);
+    });
+  }
+
+  function initHotfix(){
+    ensureViewportUnit();
+    ensurePrefixes();
+    rebindTopButtons();
+    rebindEditorButtons();
+    installDocumentDelegation();
+    window.addEventListener('resize', ensureViewportUnit, { passive:true });
+    window.visualViewport && window.visualViewport.addEventListener('resize', ensureViewportUnit, { passive:true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHotfix, { once:true });
+  } else {
+    initHotfix();
+  }
+})();
+</script>
+
 </body>
 </html>
